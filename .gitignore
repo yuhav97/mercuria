@@ -1,0 +1,37 @@
+# Dependências
+/node_modules
+
+# Ficheiros de build e cache do Next.js
+/.next/
+/out/
+
+# Ficheiros de build de produção (se usar `next export` ou CRA)
+# /build
+
+# Ficheiros de ambiente
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
+# Exclua .env apenas se ele contiver segredos e não for um template.
+# Se .env for um template, comente a linha abaixo.
+.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lint-staged.log*
+
+# Ficheiros do sistema operacional
+.DS_Store
+Thumbs.db
+
+# Ficheiros de IDEs e editores
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
