@@ -7,22 +7,25 @@ import { Loader2, FileText, Palette, Layers, UploadCloud, Wand2, Download, Mic2,
 // Componente para ícones
 const Icon = (// Componente para ícones
 
-// Define os nomes de ícones válidos para melhor segurança de tipo
-type IconName = 
-  | 'loader' | 'file' | 'palette' | 'layers' | 'upload' | 'wand' 
-  | 'download' | 'mic' | 'listChecks' | 'edit3' | 'checkCircle' 
-  | 'zap' | 'lightbulb' | 'cornerDownRight' | 'xCircle' | 'image' 
+// --- Início da Definição do Componente Icon ---
+
+// Primeiro, defina os tipos que o componente Icon usará:
+type IconName =
+  | 'loader' | 'file' | 'palette' | 'layers' | 'upload' | 'wand'
+  | 'download' | 'mic' | 'listChecks' | 'edit3' | 'checkCircle'
+  | 'zap' | 'lightbulb' | 'cornerDownRight' | 'xCircle' | 'image'
   | 'barChart' | 'spellCheck' | 'layoutDashboard' | 'fileEdit';
 
-// Define a interface para as props do componente Icon
 interface IconProps {
-  name: IconName;      // 'name' deve ser um dos IconName definidos
-  className?: string;  // 'className' é uma string opcional
+  name: IconName;
+  className?: string;
 }
 
-const Icon = ({ name, className }: IconProps) => { // Adiciona : IconProps aqui
-  const icons: Record<IconName, React.ReactNode> = { // Adiciona tipo para o objeto icons
-    loader: <Loader2 className={`animate-spin ${className}`} />,
+// Agora, defina o componente Icon
+const Icon = ({ name, className }: IconProps): JSX.Element | null => {
+  // O objeto 'icons' agora usa 'Record' para melhor tipagem com IconName
+  const icons: Record<IconName, JSX.Element> = {
+    loader: <Loader2 className={`animate-spin ${className || ''}`} />,
     file: <FileText className={className} />,
     palette: <Palette className={className} />,
     layers: <Layers className={className} />,
@@ -43,12 +46,23 @@ const Icon = ({ name, className }: IconProps) => { // Adiciona : IconProps aqui
     layoutDashboard: <LayoutDashboard className={className} />,
     fileEdit: <FileEdit className={className} />,
   };
-  return icons[name] || <div />; // Retorno padrão se o nome não for encontrado
+
+  // Verifica se o nome do ícone existe no objeto 'icons'
+  if (name in icons) {
+    return icons[name];
+  }
+  // Retorna null ou um placeholder se o ícone não for encontrado, para evitar erros
+  console.warn(`Icono "${name}" não encontrado.`);
+  return null; // Ou <div />; se preferir um elemento vazio
 };
 
-// O resto do seu componente App continua abaixo...
+// --- Fim da Definição do Componente Icon ---
+
+// O resto do seu componente principal da página (App/HomePage) continua abaixo
+// Exemplo:
+// export default function HomePage() { ... }
+// ou se o seu componente principal se chama App:
 // export default function App() { ... }
-  return icons[name] || <div />;
 };
 
 // Componente principal da aplicação
