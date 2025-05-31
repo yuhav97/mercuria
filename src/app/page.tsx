@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import Image from 'next/image';
 import { Loader2, FileText, Palette, Layers, UploadCloud, Wand2, Download, Mic2, ListChecks, Edit3, CheckCircle, Zap, Lightbulb, CornerDownRight, XCircle, Image as ImageIcon, BarChart3, SpellCheck, LayoutDashboard, FileEdit } from 'lucide-react';
 
 // Componente para ícones
@@ -46,7 +47,6 @@ export default function App() {
   const [aiReviewLevel, setAiReviewLevel] = useState('grammar_and_improvement');
   const [selectedDesignTemplate, setSelectedDesignTemplate] = useState('moderno');
   const [editableSlides, setEditableSlides] = useState([]);
-  const [rawContentForEditing, setRawContentForEditing] = useState('');
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -249,8 +249,8 @@ Texto para análise de foco: "${processedContentForFocus.substring(0, 3000)}..."
       const selectedDesignTemplateLabel = designTemplateOptions.find(d => d.value === selectedDesignTemplate)?.label || selectedDesignTemplate;
       const personaPrefix = "Você é um revisor e estruturador de conteúdo com ampla experiência em transformar textos e informações em apresentações de PowerPoint altamente profissionais, claras e visualmente organizadas.\n\n";
 
-      let imagePromptPart = includeImages ? "\nPara cada slide, inclua uma sugestão textual para uma imagem ou ilustração relevante e profissional ao conteúdo, dentro da tag [IMAGE_SUGGESTION]. Se não houver sugestão, coloque (Nenhuma)." : "\nPara cada slide, na tag [IMAGE_SUGGESTION], coloque (Nenhuma).";
-      let dataVizPromptPart = includeDataVisualization ? "\nSe o conteúdo do slide mencionar dados ou estatísticas, sugira uma visualização (gráfico/tabela) apropriada e clara na tag [DATAVIZ_SUGGESTION]. Se não, coloque (Nenhuma)." : "\nPara cada slide, na tag [DATAVIZ_SUGGESTION], coloque (Nenhuma).";
+      const imagePromptPart = includeImages ? "\nPara cada slide, inclua uma sugestão textual para uma imagem ou ilustração relevante e profissional ao conteúdo, dentro da tag [IMAGE_SUGGESTION]. Se não houver sugestão, coloque (Nenhuma)." : "\nPara cada slide, na tag [IMAGE_SUGGESTION], coloque (Nenhuma).";
+      const dataVizPromptPart = includeDataVisualization ? "\nSe o conteúdo do slide mencionar dados ou estatísticas, sugira uma visualização (gráfico/tabela) apropriada e clara na tag [DATAVIZ_SUGGESTION]. Se não, coloque (Nenhuma)." : "\nPara cada slide, na tag [DATAVIZ_SUGGESTION], coloque (Nenhuma).";
       
       const structuredContentPrompt = `${personaPrefix}Desenvolva o conteúdo DETALHADO E ESTRUTURADO para uma apresentação de aproximadamente ${numSlides} slides.
 Foco principal da apresentação: "${focus}"
@@ -342,7 +342,7 @@ NÃO inclua texto fora desta estrutura.
   return (
     <div className="min-h-screen bg-slate-100 text-slate-800 p-4 sm:p-8 flex flex-col items-center font-sans">
       <header className="w-full max-w-3xl mb-6 text-center">
-        <img src={logoUrl} alt="Logo MercurIA" className="h-12 sm:h-16 mx-auto mb-4" onError={(e) => { e.target.onerror = null; e.target.src="C:\Users\Yuri\mercuriatech\public"; }}/>
+        <Image src={logoUrl} alt="Logo MercurIA" className="h-12 sm:h-16 mx-auto mb-4" onError={(e) => { e.target.onerror = null; e.target.src="C:\Users\Yuri\mercuriatech\public"; }}/>
         <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-pink-500 to-indigo-600 mb-2">
           MercurIA: Apresentações Perfeitas em Instantes!
         </h1>
