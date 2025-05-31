@@ -9,55 +9,64 @@ const Icon = (// Componente para ícones
 
 // --- Início da Definição do Componente Icon ---
 
-// Lista dos nomes de ícones válidos
-const validIconNames = [
-  'loader', 'file', 'palette', 'layers', 'upload', 'wand',
-  'download', 'mic', 'listChecks', 'edit3', 'checkCircle',
-  'zap', 'lightbulb', 'cornerDownRight', 'xCircle', 'image',
-  'barChart', 'spellCheck', 'layoutDashboard', 'fileEdit'
-] as const; // 'as const' torna os valores do array literais somente leitura
+// Define os nomes de ícones válidos como um tipo união de strings literais
+type IconName =
+  | 'loader' | 'file' | 'palette' | 'layers' | 'upload' | 'wand'
+  | 'download' | 'mic' | 'listChecks' | 'edit3' | 'checkCircle'
+  | 'zap' | 'lightbulb' | 'cornerDownRight' | 'xCircle' | 'image'
+  | 'barChart' | 'spellCheck' | 'layoutDashboard' | 'fileEdit';
 
-// Gera o tipo IconName a partir do array
-type IconName = typeof validIconNames[number];
-
+// Define a interface para as props do componente Icon
 interface IconProps {
   name: IconName;
   className?: string;
 }
 
-const Icon = ({ name, className }: IconProps): JSX.Element | null => {
-  const iconsList: { [key in IconName]: JSX.Element } = {
-    loader: <Loader2 className={`animate-spin ${className || ''}`} />,
-    file: <FileText className={className} />,
-    palette: <Palette className={className} />,
-    layers: <Layers className={className} />,
-    upload: <UploadCloud className={className} />,
-    wand: <Wand2 className={className} />,
-    download: <Download className={className} />,
-    mic: <Mic2 className={className} />,
-    listChecks: <ListChecks className={className} />,
-    edit3: <Edit3 className={className} />,
-    checkCircle: <CheckCircle className={className} />,
-    zap: <Zap className={className} />,
-    lightbulb: <Lightbulb className={className} />,
-    cornerDownRight: <CornerDownRight className={className} />,
-    xCircle: <XCircle className={className} />,
-    image: <ImageIcon className={className} />,
-    barChart: <BarChart3 className={className} />,
-    spellCheck: <SpellCheck className={className} />,
-    layoutDashboard: <LayoutDashboard className={className} />,
-    fileEdit: <FileEdit className={className} />,
-  };
+// Dicionário de componentes de ícone
+const iconComponents: Record<IconName, React.FC<{ className?: string }>> = {
+  loader: Loader2,
+  file: FileText,
+  palette: Palette,
+  layers: Layers,
+  upload: UploadCloud,
+  wand: Wand2,
+  download: Download,
+  mic: Mic2,
+  listChecks: ListChecks,
+  edit3: Edit3,
+  checkCircle: CheckCircle,
+  zap: Zap,
+  lightbulb: Lightbulb,
+  cornerDownRight: CornerDownRight,
+  xCircle: XCircle,
+  image: ImageIcon,
+  barChart: BarChart3,
+  spellCheck: SpellCheck,
+  layoutDashboard: LayoutDashboard,
+  fileEdit: FileEdit,
+};
 
-  if (validIconNames.includes(name)) {
-    return iconsList[name];
+const Icon = ({ name, className }: IconProps): JSX.Element | null => {
+  const SelectedIconComponent = iconComponents[name];
+
+  if (!SelectedIconComponent) {
+    console.warn(`Ícone "${name}" não encontrado.`);
+    return null; // Ou um ícone de fallback
   }
 
-  console.warn(`Icone "${name}" não encontrado ou inválido.`);
-  return null; 
+  // Para o loader, precisamos adicionar 'animate-spin' dinamicamente se for o caso
+  const finalClassName = name === 'loader' ? `animate-spin ${className || ''}` : className;
+
+  return <SelectedIconComponent className={finalClassName} />;
 };
 
 // --- Fim da Definição do Componente Icon ---
+
+// O resto do seu componente principal da página (App/HomePage) continua abaixo
+// Exemplo:
+// export default function HomePage() { ... }
+// ou se o seu componente principal se chama App:
+// export default function App() { ... }
 
 // O resto do seu componente principal da página (App/HomePage) continua abaixo
 // Exemplo:
