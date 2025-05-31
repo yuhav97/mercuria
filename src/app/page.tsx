@@ -5,8 +5,23 @@ import Image from 'next/image';
 import { Loader2, FileText, Palette, Layers, UploadCloud, Wand2, Download, Mic2, ListChecks, Edit3, CheckCircle, Zap, Lightbulb, CornerDownRight, XCircle, Image as ImageIcon, BarChart3, SpellCheck, LayoutDashboard, FileEdit } from 'lucide-react';
 
 // Componente para ícones
-const Icon = ({ name, className }) => {
-  const icons = {
+const Icon = (// Componente para ícones
+
+// Define os nomes de ícones válidos para melhor segurança de tipo
+type IconName = 
+  | 'loader' | 'file' | 'palette' | 'layers' | 'upload' | 'wand' 
+  | 'download' | 'mic' | 'listChecks' | 'edit3' | 'checkCircle' 
+  | 'zap' | 'lightbulb' | 'cornerDownRight' | 'xCircle' | 'image' 
+  | 'barChart' | 'spellCheck' | 'layoutDashboard' | 'fileEdit';
+
+// Define a interface para as props do componente Icon
+interface IconProps {
+  name: IconName;      // 'name' deve ser um dos IconName definidos
+  className?: string;  // 'className' é uma string opcional
+}
+
+const Icon = ({ name, className }: IconProps) => { // Adiciona : IconProps aqui
+  const icons: Record<IconName, React.ReactNode> = { // Adiciona tipo para o objeto icons
     loader: <Loader2 className={`animate-spin ${className}`} />,
     file: <FileText className={className} />,
     palette: <Palette className={className} />,
@@ -28,6 +43,11 @@ const Icon = ({ name, className }) => {
     layoutDashboard: <LayoutDashboard className={className} />,
     fileEdit: <FileEdit className={className} />,
   };
+  return icons[name] || <div />; // Retorno padrão se o nome não for encontrado
+};
+
+// O resto do seu componente App continua abaixo...
+// export default function App() { ... }
   return icons[name] || <div />;
 };
 
