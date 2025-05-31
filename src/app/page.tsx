@@ -9,22 +9,24 @@ const Icon = (// Componente para ícones
 
 // --- Início da Definição do Componente Icon ---
 
-// Primeiro, defina os tipos que o componente Icon usará:
-type IconName =
-  | 'loader' | 'file' | 'palette' | 'layers' | 'upload' | 'wand'
-  | 'download' | 'mic' | 'listChecks' | 'edit3' | 'checkCircle'
-  | 'zap' | 'lightbulb' | 'cornerDownRight' | 'xCircle' | 'image'
-  | 'barChart' | 'spellCheck' | 'layoutDashboard' | 'fileEdit';
+// Lista dos nomes de ícones válidos
+const validIconNames = [
+  'loader', 'file', 'palette', 'layers', 'upload', 'wand',
+  'download', 'mic', 'listChecks', 'edit3', 'checkCircle',
+  'zap', 'lightbulb', 'cornerDownRight', 'xCircle', 'image',
+  'barChart', 'spellCheck', 'layoutDashboard', 'fileEdit'
+] as const; // 'as const' torna os valores do array literais somente leitura
+
+// Gera o tipo IconName a partir do array
+type IconName = typeof validIconNames[number];
 
 interface IconProps {
   name: IconName;
   className?: string;
 }
 
-// Agora, defina o componente Icon
 const Icon = ({ name, className }: IconProps): JSX.Element | null => {
-  // O objeto 'icons' agora usa 'Record' para melhor tipagem com IconName
-  const icons: Record<IconName, JSX.Element> = {
+  const iconsList: { [key in IconName]: JSX.Element } = {
     loader: <Loader2 className={`animate-spin ${className || ''}`} />,
     file: <FileText className={className} />,
     palette: <Palette className={className} />,
@@ -47,16 +49,21 @@ const Icon = ({ name, className }: IconProps): JSX.Element | null => {
     fileEdit: <FileEdit className={className} />,
   };
 
-  // Verifica se o nome do ícone existe no objeto 'icons'
-  if (name in icons) {
-    return icons[name];
+  if (validIconNames.includes(name)) {
+    return iconsList[name];
   }
-  // Retorna null ou um placeholder se o ícone não for encontrado, para evitar erros
-  console.warn(`Icono "${name}" não encontrado.`);
-  return null; // Ou <div />; se preferir um elemento vazio
+
+  console.warn(`Icone "${name}" não encontrado ou inválido.`);
+  return null; 
 };
 
 // --- Fim da Definição do Componente Icon ---
+
+// O resto do seu componente principal da página (App/HomePage) continua abaixo
+// Exemplo:
+// export default function HomePage() { ... }
+// ou se o seu componente principal se chama App:
+// export default function App() { ... }
 
 // O resto do seu componente principal da página (App/HomePage) continua abaixo
 // Exemplo:
