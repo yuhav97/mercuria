@@ -119,7 +119,6 @@ export default function MercurIAHomePage() {
             try { 
                 const eData = await response.json(); 
                 if (eData?.error?.message) errMsg = eData.error.message; 
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (_jsonErr) { /* Silenciar erro de parse do JSON de erro, já temos uma msg base */ } 
             throw new Error(errMsg); 
         }
@@ -163,8 +162,7 @@ export default function MercurIAHomePage() {
         if (uploadedFile.type === 'text/plain') { 
             try { 
                 baseContent = await uploadedFile.text(); 
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            } catch (_e) { 
+            } catch (_e) { // _e para indicar que não será usado, mas o erro é capturado
                 baseContent = `Falha ao ler: ${uploadedFile.name}.`;
                 console.error("Erro ao ler ficheiro de texto:", _e); 
             }
@@ -272,7 +270,7 @@ Slide 2: [Título do Slide 2]
 
   return (
     <div className={`min-h-screen ${themeColors.background} ${themeColors.textPrimary} flex flex-col items-center font-sans`}>
-      <header className="w-full bg-white shadow-sm sticky top-0 z-40"> {/* Tornar o header fixo no topo */}
+      <header className="w-full bg-white shadow-sm sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
             <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
                 <div className="flex items-center">
@@ -284,13 +282,13 @@ Slide 2: [Título do Slide 2]
                         <img 
                             src={logoUrl} 
                             alt="MercurIA Logo" 
-                            className="h-10 sm:h-12 w-auto" // Altura ajustada para o header fixo
+                            className="h-10 sm:h-12 w-auto" 
                             onError={() => setLogoError(true)} 
                         />
                     )}
                 </div>
                 <div className="text-center sm:text-right relative group">
-                    <div className="h-7 flex items-center justify-center sm:justify-end"> {/* Altura do subtítulo ajustada */}
+                    <div className="h-7 flex items-center justify-center sm:justify-end">
                         {isLoading && loadingMessage.includes("subtítulos") && <p className={`${themeColors.textSecondary} text-xs sm:text-sm italic`}>A gerar subtítulo...</p>}
                         {!isLoading && suggestedSubtitles.length > 0 && ( <p className={`${themeColors.textSecondary} text-xs sm:text-sm`}>{suggestedSubtitles[currentSubtitleIndex]}</p> )}
                         {!isLoading && suggestedSubtitles.length === 0 && ( <p className={`${themeColors.textSecondary} text-xs sm:text-sm`}>Transforme ideias em apresentações poderosas.</p> )}
@@ -317,11 +315,10 @@ Slide 2: [Título do Slide 2]
 
         {currentStep === 'initialInput' && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start"> {/* Layout de duas colunas para os Passos 1 e 2 */}
-                {/* Coluna da Esquerda: Passo 1 e Passo 2 */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
                 <div className="space-y-8">
-                    <section className={`p-6 rounded-xl border ${themeColors.borderDefault} bg-white shadow-lg`}> {/* Card para Passo 1 */}
-                        <h2 className={`text-xl sm:text-2xl font-semibold ${themeColors.textPrimary} mb-1.5 flex items-center`}><Icon name="fileText" className={`w-6 h-6 mr-2.5 ${themeColors.textAccent}`}/>Passo 1: O Seu Conteúdo</h2>
+                    <section className={`p-6 rounded-xl border ${themeColors.borderDefault} bg-white shadow-lg`}>
+                        <h2 className={`text-xl sm:text-2xl font-semibold ${themeColors.textPrimary} mb-1.5 flex items-center`}><Icon name="file" className={`w-6 h-6 mr-2.5 ${themeColors.textAccent}`}/>Passo 1: O Seu Conteúdo</h2> {/* Corrigido: fileText para file */}
                         <p className={`${themeColors.textSecondary} text-sm mb-5`}>Forneça o material base para a sua apresentação.</p>
                         <div className="mb-5">
                             <label className={`block text-base font-medium ${themeColors.textSecondary} mb-3`}>Como prefere fornecer o conteúdo?</label>
@@ -342,7 +339,7 @@ Slide 2: [Título do Slide 2]
                         </div>)}
                     </section>
 
-                    <section className={`p-6 rounded-xl border ${themeColors.borderDefault} bg-white shadow-lg`}> {/* Card para Passo 2 */}
+                    <section className={`p-6 rounded-xl border ${themeColors.borderDefault} bg-white shadow-lg`}>
                         <h2 className={`text-xl sm:text-2xl font-semibold ${themeColors.textPrimary} mb-1.5 flex items-center`}><Icon name="layers" className={`w-6 h-6 mr-2.5 text-green-500`}/>Passo 2: Personalize</h2>
                         <p className={`${themeColors.textSecondary} text-sm mb-5`}>Defina as características principais.</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
@@ -353,8 +350,7 @@ Slide 2: [Título do Slide 2]
                         </div>
                     </section>
                 </div>
-                 {/* Coluna da Direita: Passo 3 (Opções IA) ou Botão de Analisar */}
-                <div className="md:mt-0"> {/* Garante que não haja margem superior extra em telas médias+ */}
+                <div className="md:mt-0">
                     {!baseContentProcessed && (
                         <div className="flex flex-col items-center justify-center h-full p-6 rounded-xl border bg-white shadow-lg">
                             <Icon name="wand" className={`w-16 h-16 mb-6 ${themeColors.textAccent} opacity-50`} />
@@ -362,9 +358,8 @@ Slide 2: [Título do Slide 2]
                             <button onClick={handleProcessBaseContent} disabled={isLoading} className={`w-full ${themeColors.buttonPrimaryBg} ${themeColors.buttonPrimaryText} font-semibold py-3.5 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-150 flex items-center justify-center text-lg disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none ${themeColors.focusRing} focus:ring-offset-2`}><Icon name="wand" className="w-6 h-6 mr-3" />Analisar e Definir Opções IA</button>
                         </div>
                     )}
-
                     {baseContentProcessed && (
-                        <section className={`animate-fadeIn p-6 rounded-xl border ${themeColors.borderDefault} bg-white shadow-lg space-y-6`}> {/* Card para Passo 3 */}
+                        <section className={`animate-fadeIn p-6 rounded-xl border ${themeColors.borderDefault} bg-white shadow-lg space-y-6`}>
                             <div>
                                 <h2 className={`text-xl sm:text-2xl font-semibold ${themeColors.textPrimary} mb-1.5 flex items-center`}><Icon name="sparkles" className={`w-6 h-6 mr-2.5 text-purple-500`}/>Passo 3: Assistência Criativa</h2>
                                 <p className={`${themeColors.textSecondary} text-sm mb-5`}>Selecione como a IA pode ajudar a enriquecer a sua apresentação.</p>
