@@ -52,13 +52,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ currentStepKey }) => {
     const progressPercentage = steps.length > 0 ? (currentStepNumberForDisplay / steps.length) * 100 : 0;
     return (
         <div className="w-full mb-10">
-            <div className="flex justify-between mb-2">
-                {steps.map((step, index) => (
-                    <div key={step.id} className={`text-xs sm:text-sm text-center flex-1 px-1 ${index + 1 <= currentStepNumberForDisplay ? 'text-cyan-600 font-bold' : 'text-gray-500'}`}>
-                        {step.name}
-                    </div>
-                ))}
-            </div>
+            <div className="flex justify-between mb-2">{steps.map((step, index) => (<div key={step.id} className={`text-xs sm:text-sm text-center flex-1 px-1 ${index + 1 <= currentStepNumberForDisplay ? 'text-cyan-600 font-bold' : 'text-gray-500'}`}>{step.name}</div>))}</div>
             <div className="w-full bg-gray-200 rounded-full h-2">
                 <div className="bg-gradient-to-r from-cyan-500 to-blue-600 h-2 rounded-full transition-all duration-500 ease-out" style={{ width: `${progressPercentage}%` }}></div>
             </div>
@@ -119,7 +113,8 @@ export default function MercurIAHomePage() {
             try { 
                 const eData = await response.json(); 
                 if (eData?.error?.message) errMsg = eData.error.message; 
-            } catch (_jsonErr) { /* Silenciar erro de parse do JSON de erro, já temos uma msg base */ } 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars 
+            } catch (_jsonErr) { /* Esta variável _jsonErr é intencionalmente não usada aqui, pois já temos uma mensagem de erro base (errMsg). O comentário eslint-disable-next-line acima trata do aviso do linter. */ } 
             throw new Error(errMsg); 
         }
         const data = await response.json();
@@ -162,7 +157,8 @@ export default function MercurIAHomePage() {
         if (uploadedFile.type === 'text/plain') { 
             try { 
                 baseContent = await uploadedFile.text(); 
-            } catch (_e) { // _e para indicar que não será usado, mas o erro é capturado
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (_e) { 
                 baseContent = `Falha ao ler: ${uploadedFile.name}.`;
                 console.error("Erro ao ler ficheiro de texto:", _e); 
             }
@@ -318,7 +314,7 @@ Slide 2: [Título do Slide 2]
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
                 <div className="space-y-8">
                     <section className={`p-6 rounded-xl border ${themeColors.borderDefault} bg-white shadow-lg`}>
-                        <h2 className={`text-xl sm:text-2xl font-semibold ${themeColors.textPrimary} mb-1.5 flex items-center`}><Icon name="file" className={`w-6 h-6 mr-2.5 ${themeColors.textAccent}`}/>Passo 1: O Seu Conteúdo</h2> {/* Corrigido: fileText para file */}
+                        <h2 className={`text-xl sm:text-2xl font-semibold ${themeColors.textPrimary} mb-1.5 flex items-center`}><Icon name="file" className={`w-6 h-6 mr-2.5 ${themeColors.textAccent}`}/>Passo 1: O Seu Conteúdo</h2>
                         <p className={`${themeColors.textSecondary} text-sm mb-5`}>Forneça o material base para a sua apresentação.</p>
                         <div className="mb-5">
                             <label className={`block text-base font-medium ${themeColors.textSecondary} mb-3`}>Como prefere fornecer o conteúdo?</label>
