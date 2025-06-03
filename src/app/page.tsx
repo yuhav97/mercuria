@@ -89,6 +89,7 @@ export default function MercurIAHomePage() {
   const [selectedFocus, setSelectedFocus] = useState('');
   const [contentForApproval, setContentForApproval] = useState('');
   const [finalResult, setFinalResult] = useState<FinalResultType | null>(null);
+  const [logoError, setLogoError] = useState(false); // Estado para controlar erro no carregamento da logo
 
   const toneOptions = [ { value: 'muito_formal', label: 'Muito Formal (Corporativo, Académico)' }, { value: 'formal', label: 'Formal (Profissional, Informativo)' }, { value: 'neutro', label: 'Neutro (Padrão, Equilibrado)' }, { value: 'informal', label: 'Informal (Interativo, Casual)' }, { value: 'bem_descontraido', label: 'Bem Descontraído (Criativo, Divertido)' }, ];
   const contentStyleOptions = [ { value: 'bullet_points', label: 'Mais Concisa (Foco em Pontos Chave)' }, { value: 'texto_corrido', label: 'Mais Detalhada (Textos Corridos)' }, ];
@@ -120,18 +121,23 @@ export default function MercurIAHomePage() {
 
   const fetchCommercialSubtitles = useCallback(async () => {
     const promptSubtitles = `Você é um copywriter especialista. Crie 3 subtítulos curtos (máx 12 palavras), impactantes e comerciais para 'MercurIA', uma IA que cria apresentações PowerPoint. DEVEM incluir 'MercurIA'. Liste cada um numa nova linha. Varie-os.`;
+    if (!API_KEY) {
+        setSuggestedSubtitles(["MercurIA: Apresentações Inteligentes (Simulado).", "MercurIA: Do texto à ovation, com IA (Simulado).", "MercurIA: Design e conteúdo perfeitos (Simulado)."]);
+        setCurrentSubtitleIndex(0);
+        return;
+    }
     const subtitlesText = await callGeminiAPI(promptSubtitles, "A gerar novos subtítulos...", false);
     if (subtitlesText && typeof subtitlesText === 'string') {
         const newSubtitles = subtitlesText.split('\n').filter(s => s.trim() !== '').slice(0, 3);
         if (newSubtitles.length > 0) { setSuggestedSubtitles(newSubtitles); setCurrentSubtitleIndex(Math.floor(Math.random() * newSubtitles.length)); } 
         else { setSuggestedSubtitles(["MercurIA: Apresentações impactantes.", "MercurIA: Ideias que brilham.", "MercurIA: Conteúdo em espetáculo."]); setCurrentSubtitleIndex(0); }
     } else { setSuggestedSubtitles(["MercurIA: Magia da IA.", "MercurIA: Slides profissionais.", "MercurIA: Inovação e clareza."]); setCurrentSubtitleIndex(0); }
-  }, [callGeminiAPI]); 
+  }, [callGeminiAPI, API_KEY]); 
 
   useEffect(() => {
-    if (API_KEY && API_KEY.trim() !== "") { fetchCommercialSubtitles(); } 
-    else { console.warn("API Key em falta. Usando subtítulos placeholder."); setSuggestedSubtitles(["MercurIA: A sua próxima apresentação.", "Transforme ideias com MercurIA.", "MercurIA - Brilhantismo sem esforço."]); }
-  }, [fetchCommercialSubtitles, API_KEY]);
+    fetchCommercialSubtitles();
+  }, [fetchCommercialSubtitles]);
+
 
   const handleAiOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => { const { name, checked } = event.target; setAiOptions(prev => ({ ...prev, [name]: checked, })); };
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => { const file = event.target.files?.[0]; if (file) { if (file.size > 5*1024*1024) {setError('Ficheiro grande demais.'); return;} const types = ['application/pdf','application/msword','application/vnd.openxmlformats-officedocument.wordprocessingml.document','text/plain']; if(!types.includes(file.type)){setError('Tipo de ficheiro inválido.');return;} setUploadedFile(file);setError('');setBaseContentProcessed(false);}};
@@ -210,12 +216,23 @@ Conteúdo Processado: "${initialProcessedContent.substring(0, 3000)}..."`;
   const colorInputStyle = { width: '100%', height: '40px', border: '1px solid #CED4DA', borderRadius: '0.375rem', padding: '2px' };
   const themeColors = { background: 'bg-white', cardBackground: 'bg-gray-50', textPrimary: 'text-gray-800', textSecondary: 'text-gray-600', textAccent: 'text-blue-600', borderDefault: 'border-gray-300', borderInput: 'border-gray-400', buttonPrimaryBg: 'bg-blue-600 hover:bg-blue-700', buttonPrimaryText: 'text-white', buttonSecondaryBg: 'bg-gray-200 hover:bg-gray-300', buttonSecondaryText: 'text-gray-700', focusRing: 'focus:ring-blue-500', errorBg: 'bg-red-50', errorBorder: 'border-red-400', errorText: 'text-red-700', };
   
+  const logoUrl = "https://i.imgur.com/ygDaAq9.jpg"; // Link direto da imagem
+
   return (
     <div className={`min-h-screen ${themeColors.background} ${themeColors.textPrimary} p-4 sm:p-8 flex flex-col items-center font-sans`}>
       <header className="w-full max-w-3xl mb-6 text-center">
-        <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 mb-2">
-          MercurIA ✨
-        </h1>
+        {logoError ? (
+            <h1 className="text-4xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 mb-2">
+                MercurIA ✨ {/* Fallback para texto se a logo falhar */}
+            </h1>
+        ) : (
+            <img 
+                src={logoUrl} 
+                alt="MercurIA Logo" 
+                className="h-16 w-auto mx-auto mb-2" // Ajuste a altura (h-16) conforme necessário
+                onError={() => setLogoError(true)} // Se a imagem não carregar, mostra o título de texto
+            />
+        )}
         <div className="h-12 flex items-center justify-center relative group">
             {isLoading && loadingMessage.includes("subtítulos") && <p className={`${themeColors.textSecondary} text-lg italic`}>A gerar subtítulo inspirador...</p>}
             {!isLoading && suggestedSubtitles.length > 0 && ( <p className={`${themeColors.textSecondary} text-lg`}>{suggestedSubtitles[currentSubtitleIndex]}</p> )}
