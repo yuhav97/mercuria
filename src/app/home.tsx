@@ -1,80 +1,130 @@
-// home.tsx
 "use client";
-import React from 'react';
-import Link from 'next/link';
 
-const Home = () => {
+import { Poppins } from 'next/font/google';
+import { AiOutlineRocket, GiArtificialIntelligence, FaPalette, MdDesignServices } from 'react-icons/all';
+
+const poppins = Poppins({ subsets: ['latin'], weight: ['400', '600'] });
+
+export default function Home() {
   return (
-    <div className="min-h-screen bg-gradient-to-r from-cyan-100 to-blue-100 font-sans">
-      <header className="w-full bg-white shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
-            <div className="flex items-center">
-              <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600">
-                MercurIA
-              </h1>
-            </div>
-          </div>
+    <div className={`${poppins.className} min-h-screen bg-gradient-to-r from-indigo-900 via-purple-800 to-pink-600 text-white font-sans`}>
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full bg-black/30 backdrop-blur-lg px-4 sm:px-8 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <h1 className="text-3xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-500 to-purple-600">
+            MercurIA
+            <GiArtificialIntelligence size={32} className="inline-block ml-2 animate-pulse text-cyan-400" />
+          </h1>
         </div>
       </header>
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-white mt-0 sm:rounded-b-xl shadow-none sm:shadow-2xl space-y-10 border-x-0 border-b-0 sm:border border-slate-300">
-        <div className="hero text-center py-12 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl shadow-lg">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-4">Crie Apresentações Poderosas com MercurIA</h1>
-          <p className="text-lg sm:text-xl mb-8">Transforme suas ideias em apresentações impactantes com o poder da IA.</p>
+
+      {/* Hero Section */}
+      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="bg-black/60 backdrop-blur-lg rounded-3xl p-8 sm:p-12 shadow-lg shadow-cyan-900/50">
+          <h2 className="text-5xl sm:text-6xl font-extrabold mb-6 text-white bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600">
+            Crie Apresentações Poderosas com MercurIA
+          </h2>
+          <p className="text-lg text-slate-200 mb-8">
+            Transforme suas ideias em apresentações impactantes com o poder da IA.
+          </p>
           <Link href="/page">
-            <button className="bg-white text-cyan-600 hover:bg-slate-100 font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-150">Começar Agora</button>
+            <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:bg-gradient-to-l hover:from-blue-600 hover:to-cyan-500 
+              hover:scale-105 transition-all duration-300 
+              text-white font-semibold rounded-lg shadow-md shadow-cyan-900/50 
+              focus:outline-none focus:ring-2 focus:ring-cyan-400">
+              Começar Agora
+            </button>
           </Link>
         </div>
-        <div className="benefits py-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-6 text-center">Por que escolher MercurIA?</h2>
-          <div className="benefit-cards flex flex-wrap justify-center gap-6">
-            <div className="benefit-card bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/3">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">Design Profissional</h3>
-              <p className="text-slate-600">Crie apresentações com designs modernos e profissionais.</p>
+      </section>
+
+      {/* Benefits Section */}
+      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-8">
+        <h3 className="text-3xl font-bold text-center text-white mb-12">
+          Por que escolher MercurIA?
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card 1 */}
+          <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow">
+            <FaPalette size={40} className="text-cyan-400 mb-4" />
+            <h4 className="text-xl font-semibold text-white mb-2">Design Profissional</h4>
+            <p className="text-slate-400">Crie apresentações com designs modernos e profissionais.</p>
+          </div>
+          {/* Card 2 */}
+          <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow">
+            <GiArtificialIntelligence size={40} className="text-cyan-400 mb-4" />
+            <h4 className="text-xl font-semibold text-white mb-2">Assistência de IA</h4>
+            <p className="text-slate-400">Sugestões personalizadas de conteúdo e layout.</p>
+          </div>
+          {/* Card 3 */}
+          <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-6 shadow-md hover:shadow-lg transition-shadow">
+            <MdDesignServices size={40} className="text-cyan-400 mb-4" />
+            <h4 className="text-xl font-semibold text-white mb-2">Facilidade de Uso</h4>
+            <p className="text-slate-400">Interface intuitiva e intuitiva.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-16 bg-gradient-to-b from-indigo-900 to-purple-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <h3 className="text-3xl font-bold text-center text-white mb-12">
+            Como funciona o MercurIA?
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {/* Step 1 */}
+            <div className="bg-black/60 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow">
+              <AiOutlineRocket size={40} className="text-cyan-400 mb-4" />
+              <h4 className="text-xl font-semibold text-white mb-2">1. Forneça seu Conteúdo</h4>
+              <p className="text-slate-400">Digite ou carregue seu texto, pontos-chave ou rascunho.</p>
             </div>
-            <div className="benefit-card bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/3">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">Assistência de IA</h3>
-              <p className="text-slate-600">Receba sugestões personalizadas de conteúdo e layout.</p>
+            {/* Step 2 */}
+            <div className="bg-black/60 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow">
+              <GiArtificialIntelligence size={40} className="text-cyan-400 mb-4" />
+              <h4 className="text-xl font-semibold text-white mb-2">2. Personalize</h4>
+              <p className="text-slate-400">Defina opções como tom de voz e estilo.</p>
             </div>
-            <div className="benefit-card bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/3">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">Facilidade de Uso</h3>
-              <p className="text-slate-600">Interface intuitiva para criar apresentações sem complicações.</p>
+            {/* Step 3 */}
+            <div className="bg-black/60 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow">
+              <AiOutlineRocket size={40} className="text-cyan-400 mb-4" />
+              <h4 className="text-xl font-semibold text-white mb-2">3. Gere sua Apresentação</h4>
+              <p className="text-slate-400">A IA gera uma apresentação em segundos.</p>
+            </div>
+            {/* Step 4 */}
+            <div className="bg-black/60 p-6 rounded-2xl shadow-md hover:shadow-lg transition-shadow">
+              <AiOutlineRocket size={40} className="text-cyan-400 mb-4" />
+              <h4 className="text-xl font-semibold text-white mb-2">4. Baixe ou Compartilhe</h4>
+              <p className="text-slate-400">Exporte em PDF, PPT ou compartilhe diretamente.</p>
             </div>
           </div>
         </div>
-        <div className="how-it-works py-12 bg-slate-50">
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-6 text-center">Como funciona o MercurIA?</h2>
-          <div className="steps flex flex-wrap justify-center gap-6">
-            <div className="step bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/4">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">1. Forneça seu Conteúdo</h3>
-              <p className="text-slate-600">Digite ou carregue seu texto, pontos chave, ou rascunho.</p>
-            </div>
-            <div className="step bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/4">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">2. Personalize</h3>
-              <p className="text-slate-600">Defina o tom de voz, estilo, e outras opções de personalização.</p>
-            </div>
-            <div className="step bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/4">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">3. Deixe a IA Trabalhar</h3>
-              <p className="text-slate-600">Nossa IA processa seu conteúdo e cria uma apresentação personalizada.</p>
-            </div>
-            <div className="step bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/4">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">4. Reveja e Compartilhe</h3>
-              <p className="text-slate-600">Reveja sua apresentação e compartilhe com o mundo.</p>
-            </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-16 bg-gradient-to-r from-cyan-900 to-blue-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8">
+          <div className="bg-black/50 rounded-3xl p-8 sm:p-12 shadow-lg shadow-cyan-900/50">
+            <h2 className="text-4xl font-extrabold text-white mb-6 bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600">
+              Pronto para criar sua apresentação?
+            </h2>
+            <Link href="/page">
+              <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:bg-gradient-to-l hover:from-blue-600 hover:to-cyan-500 
+                hover:scale-105 transition-all duration-200 
+                text-white font-semibold rounded-lg shadow-md shadow-cyan-900/50 
+                focus:outline-none focus:ring-2 focus:ring-cyan-400">
+                Começar Agora
+              </button>
+            </Link>
           </div>
         </div>
-        <div className="call-to-action text-center py-12 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl shadow-lg">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Pronto para criar sua primeira apresentação?</h2>
-          <Link href="/page">
-            <button className="bg-white text-cyan-600 hover:bg-slate-100 font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-150">Começar Agora</button>
-          </Link>
+      </section>
+
+      {/* Footer */}
+      <footer className="bg-gradient-to-r from-indigo-900 to-purple-900 py-6 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-8 flex flex-col items-center text-slate-400 text-sm">
+          <p>© {new Date().getFullYear()} MercurIA. Todos os direitos reservados.</p>
         </div>
-      </main>
-      <footer className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 py-8 text-center text-sm text-slate-600 border-t border-slate-200">
-        <p>&copy; {new Date().getFullYear()} MercurIA. Todos os direitos reservados.</p>
       </footer>
     </div>
   );
-};
-
-export default Home;
+}
