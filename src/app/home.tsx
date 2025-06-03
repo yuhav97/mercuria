@@ -2,9 +2,12 @@
 
 import Link from 'next/link';
 import { Poppins } from 'next/font/google';
-import { AiOutlineRocket, GiArtificialIntelligence, FaPalette, MdDesignServices } from 'react-icons/all';
+import { AiOutlineRocket } from 'react-icons/ai';
+import { GiArtificialIntelligence } from 'react-icons/gi';
+import { FaPalette } from 'react-icons/fa';
+import { MdDesignServices } from 'react-icons/md';
 
-const poppins = Poppins({ subsets: ['latin'], weights: ['400', '600'] });
+const poppins = Poppins({ subsets: ['latin'], weight: ['400', '600'] }); // Corrigido: weights -> weight
 
 export default function Home() {
   return (
@@ -20,17 +23,17 @@ export default function Home() {
         }
         .hover-scale {
           transition: all 0.3s;
-          &:hover {
-            transform: scale(1.03);
-            box-shadow: 0 0 25px rgba(74, 172, 255, 0.5);
-          }
+        }
+        .hover-scale:hover { /* Corrigido: sintaxe do hover */
+          transform: scale(1.03);
+          box-shadow: 0 0 25px rgba(74, 172, 255, 0.5);
         }
       `}</style>
 
       {/* Header */}
       <header className="sticky top-0 z-50 w-full bg-black/30 backdrop-blur-lg px-4 sm:px-8 py-4">
         <div className="max-w-7xl mx-auto flex items-center">
-          <h1 className="text-3xl font-extrabold text-white">
+          <h1 className="text-3xl font-extrabold text-white flex items-center"> {/* Adicionado flex e items-center para alinhar o ícone */}
             MercurIA
             <GiArtificialIntelligence size={32} className="ml-2 animate-pulse text-cyan-400" />
           </h1>
@@ -43,8 +46,8 @@ export default function Home() {
           <h2 className="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 mb-8">
             Crie Apresentações Poderosas
           </h2>
-          <Link href="/page" className="hover-scale">
-            <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:bg-gradient-to-l hover:from-blue-600 hover:to-cyan-500 font-semibold rounded-lg text-white transition-shadow">
+          <Link href="/page" passHref> {/* passHref é uma boa prática com botões ou elementos customizados dentro do Link */}
+            <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:bg-gradient-to-l hover:from-blue-600 hover:to-cyan-500 font-semibold rounded-lg text-white transition-shadow hover-scale"> {/* Adicionado hover-scale aqui também se desejado */}
               Começar Agora
             </button>
           </Link>
