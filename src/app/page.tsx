@@ -103,12 +103,19 @@ export default function MercurIAHomePage() {
     const payload = { contents: [{ role: "user", parts: [{ text: finalPrompt }] }] };
     try {
         const response = await fetch(API_URL_GEMINI, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-        if (!response.ok) { let errMsg = `Falha na IA (HTTP ${response.status})`; try { const eData = await response.json(); if (eData?.error?.message) errMsg = eData.error.message; } catch (jsonErr) {} throw new Error(errMsg); }
+        if (!response.ok) { 
+            let errMsg = `Falha na IA (HTTP ${response.status})`; 
+            try { 
+                const eData = await response.json(); 
+                if (eData?.error?.message) errMsg = eData.error.message; 
+            } catch (_jsonErr) { /* Silenciar erro de parse do JSON de erro, já temos uma msg base */ } 
+            throw new Error(errMsg); 
+        }
         const data = await response.json();
         if (data.candidates?.[0]?.content?.parts?.[0]?.text && typeof data.candidates[0].content.parts[0].text === 'string') { setIsLoading(false); return data.candidates[0].content.parts[0].text; }
         throw new Error("Resposta da IA com formato inesperado.");
     } catch (err: unknown) { setIsLoading(false); if (err instanceof Error) setError(`Erro IA: ${err.message}`); else setError("Erro IA desconhecido."); return null; }
-  }, [API_KEY, API_URL_GEMINI]); // Adicionado API_URL_GEMINI para satisfazer o linter (embora seja derivado de API_KEY)
+  }, [API_KEY, API_URL_GEMINI]); 
 
   const fetchCommercialSubtitles = useCallback(async () => {
     const promptSubtitles = `Você é um copywriter especialista. Crie 3 subtítulos curtos (máx 12 palavras), impactantes e comerciais para 'MercurIA', uma IA que cria apresentações PowerPoint. DEVEM incluir 'MercurIA'. Liste cada um numa nova linha. Varie-os.`;
@@ -118,7 +125,7 @@ export default function MercurIAHomePage() {
         if (newSubtitles.length > 0) { setSuggestedSubtitles(newSubtitles); setCurrentSubtitleIndex(Math.floor(Math.random() * newSubtitles.length)); } 
         else { setSuggestedSubtitles(["MercurIA: Apresentações impactantes.", "MercurIA: Ideias que brilham.", "MercurIA: Conteúdo em espetáculo."]); setCurrentSubtitleIndex(0); }
     } else { setSuggestedSubtitles(["MercurIA: Magia da IA.", "MercurIA: Slides profissionais.", "MercurIA: Inovação e clareza."]); setCurrentSubtitleIndex(0); }
-  }, [callGeminiAPI]); // callGeminiAPI é a dependência correta aqui
+  }, [callGeminiAPI]); 
 
   useEffect(() => {
     if (API_KEY && API_KEY.trim() !== "") { fetchCommercialSubtitles(); } 
@@ -134,7 +141,17 @@ export default function MercurIAHomePage() {
     if (numSlides <= 0) { setError('Nº de slides inválido.'); return; }
     setError(''); setSuggestedFocuses([]); setSelectedFocus(''); setContentForApproval(''); setFinalResult(null);
     let baseContent = inputText;
-    if (contentInputMode === 'file' && uploadedFile) { baseContent = `Ficheiro: ${uploadedFile.name}.`; if (uploadedFile.type === 'text/plain') { try { baseContent = await uploadedFile.text(); } catch (e) { baseContent = `Falha ao ler: ${uploadedFile.name}.`;}} }
+    if (contentInputMode === 'file' && uploadedFile) { 
+        baseContent = `Ficheiro: ${uploadedFile.name}.`; 
+        if (uploadedFile.type === 'text/plain') { 
+            try { 
+                baseContent = await uploadedFile.text(); 
+            } catch (_e) { // Variável 'e' prefixada com _ para indicar que é intencionalmente não usada
+                baseContent = `Falha ao ler: ${uploadedFile.name}.`;
+                console.error("Erro ao ler ficheiro de texto:", _e); // Opcional: logar o erro real
+            }
+        } 
+    }
     if (baseContent.length > 15000) baseContent = baseContent.substring(0, 15000) + "... (truncado)";
     const initialPrompt = `Resuma e estruture o seguinte conteúdo base para uma apresentação, considerando princípios de design instrucional para clareza e impacto. Base para próximas etapas. Limite 300 palavras, foque nos pontos chave e estrutura lógica:\n\n"${baseContent}"`;
     const processed = await callGeminiAPI(initialPrompt, "A processar conteúdo base...");
@@ -321,4 +338,3 @@ Conteúdo Processado: "${initialProcessedContent.substring(0, 3000)}..."`;
     </div>
   );
 }
-
