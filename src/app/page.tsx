@@ -1,38 +1,76 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { Loader2, FileText, Palette, Layers, UploadCloud, Wand2, Download, Mic2, ListChecks, Edit3, CheckCircle, Zap, Lightbulb, CornerDownRight, XCircle, Sparkles, Image as ImageIcon, BarChart3, ArrowRight, CheckSquare, Square, Info, RefreshCw } from 'lucide-react';
+"use client"; // Necessário para componentes com hooks no Next.js App Router
 
-// Componente para ícones
-const Icon = ({ name, className, ...props }) => {
-  const icons = {
-    loader: <Loader2 className={`animate-spin ${className}`} {...props} />,
-    file: <FileText className={className} {...props} />,
-    palette: <Palette className={className} {...props} />,
-    layers: <Layers className={className} {...props} />,
-    upload: <UploadCloud className={className} {...props} />,
-    wand: <Wand2 className={className} {...props} />,
-    download: <Download className={className} {...props} />,
-    mic: <Mic2 className={className} {...props} />,
-    listChecks: <ListChecks className={className} {...props} />,
-    edit3: <Edit3 className={className} {...props} />,
-    checkCircle: <CheckCircle className={className} {...props} />,
-    zap: <Zap className={className} {...props} />,
-    lightbulb: <Lightbulb className={className} {...props} />,
-    cornerDownRight: <CornerDownRight className={className} {...props} />,
-    xCircle: <XCircle className={className} {...props} />,
-    sparkles: <Sparkles className={className} {...props} />, 
-    imageIcon: <ImageIcon className={className} {...props} />,
-    barChart3: <BarChart3 className={className} {...props} />,
-    arrowRight: <ArrowRight className={className} {...props} />,
-    checkSquare: <CheckSquare className={className} {...props} />,
-    square: <Square className={className} {...props} />,
-    info: <Info className={className} {...props} />,
-    refreshCw: <RefreshCw className={className} {...props} />,
-  };
-  return icons[name] || <div />;
+import React, { useState, useEffect, useCallback } from 'react';
+import { 
+    Loader2, FileText, Palette, Layers, UploadCloud, Wand2, Download, Mic2, 
+    ListChecks, Edit3, CheckCircle, Zap, Lightbulb, CornerDownRight, XCircle, 
+    Sparkles, Image as ImageIcon, BarChart3, ArrowRight, CheckSquare, Square, Info, RefreshCw 
+} from 'lucide-react';
+
+// --- Definição do Componente Icon e Tipos Associados ---
+const iconsMap = {
+  loader: Loader2,
+  file: FileText,
+  palette: Palette,
+  layers: Layers,
+  upload: UploadCloud,
+  wand: Wand2,
+  download: Download,
+  mic: Mic2,
+  listChecks: ListChecks,
+  edit3: Edit3,
+  checkCircle: CheckCircle,
+  zap: Zap,
+  lightbulb: Lightbulb,
+  cornerDownRight: CornerDownRight,
+  xCircle: XCircle,
+  sparkles: Sparkles,
+  imageIcon: ImageIcon, 
+  barChart3: BarChart3,
+  arrowRight: ArrowRight,
+  checkSquare: CheckSquare,
+  square: Square,
+  info: Info,
+  refreshCw: RefreshCw,
 };
 
-// Componente Checkbox Personalizado
-const CustomCheckbox = ({ id, label, checked, onChange, name, description, iconName, iconColor }) => {
+export type IconName = keyof typeof iconsMap;
+
+interface IconProps extends React.SVGProps<SVGSVGElement> {
+  name: IconName;
+  className?: string;
+}
+
+const Icon: React.FC<IconProps> = ({ name, className, ...props }) => {
+  const LucideIconComponent = iconsMap[name];
+
+  if (!LucideIconComponent) {
+    console.warn(`[Icon Component] Ícone "${name}" não encontrado.`);
+    return <div className={className} data-testid="icon-fallback" />; 
+  }
+
+  const combinedClassName = name === 'loader' 
+    ? `animate-spin ${className || ''}`.trim() 
+    : className;
+
+  return <LucideIconComponent className={combinedClassName} {...props} />;
+};
+// --- Fim da Definição do Componente Icon ---
+
+
+// --- Início do Componente Checkbox Personalizado ---
+interface CustomCheckboxProps {
+    id: string;
+    label: string;
+    checked: boolean;
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    name: string;
+    description?: string;
+    iconName?: IconName; 
+    iconColor?: string;
+}
+
+const CustomCheckbox: React.FC<CustomCheckboxProps> = ({ id, label, checked, onChange, name, description, iconName, iconColor }) => {
     return (
         <label htmlFor={id} className={`flex items-start p-4 border rounded-lg cursor-pointer transition-all duration-150 ${checked ? 'bg-blue-50 border-blue-500 shadow-md' : 'bg-white border-gray-300 hover:border-gray-400'}`}>
             <input type="checkbox" id={id} name={name} checked={checked} onChange={onChange} className="hidden" />
@@ -49,9 +87,14 @@ const CustomCheckbox = ({ id, label, checked, onChange, name, description, iconN
         </label>
     );
 };
+// --- Fim do Componente Checkbox Personalizado ---
 
-// Barra de Progresso
-const ProgressBar = ({ currentStepKey }) => {
+
+// --- Início da Barra de Progresso ---
+interface ProgressBarProps {
+    currentStepKey: string;
+}
+const ProgressBar: React.FC<ProgressBarProps> = ({ currentStepKey }) => {
     const steps = [
         { id: 1, name: "Conteúdo e Opções", stepKey: "initialInput" },
         { id: 2, name: "Escolher Foco", stepKey: "selectFocus" },
@@ -81,15 +124,16 @@ const ProgressBar = ({ currentStepKey }) => {
         </div>
     );
 };
+// --- Fim da Barra de Progresso ---
 
 
-// Componente principal da aplicação
-export default function App() {
+// --- Início do Componente Principal da Aplicação (MercurIA Page) ---
+export default function MercurIAHomePage() {
   const [currentStep, setCurrentStep] = useState('initialInput');
   
   const [contentInputMode, setContentInputMode] = useState('text');
   const [inputText, setInputText] = useState('');
-  const [uploadedFile, setUploadedFile] = useState(null);
+  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [numSlides, setNumSlides] = useState(10);
   const [primaryColor, setPrimaryColor] = useState('#007BFF');
   const [presentationTone, setPresentationTone] = useState('neutro');
@@ -100,7 +144,7 @@ export default function App() {
   const [error, setError] = useState('');
   
   const [initialProcessedContent, setInitialProcessedContent] = useState(''); 
-  const [suggestedSubtitles, setSuggestedSubtitles] = useState([]);
+  const [suggestedSubtitles, setSuggestedSubtitles] = useState<string[]>([]);
   const [currentSubtitleIndex, setCurrentSubtitleIndex] = useState(0);
   
   const [aiOptions, setAiOptions] = useState({
@@ -111,10 +155,10 @@ export default function App() {
   
   const [baseContentProcessed, setBaseContentProcessed] = useState(false); 
   
-  const [suggestedFocuses, setSuggestedFocuses] = useState([]);
+  const [suggestedFocuses, setSuggestedFocuses] = useState<string[]>([]);
   const [selectedFocus, setSelectedFocus] = useState('');
   const [contentForApproval, setContentForApproval] = useState('');
-  const [finalResult, setFinalResult] = useState(null);
+  const [finalResult, setFinalResult] = useState<any>(null);
 
   const toneOptions = [
     { value: 'muito_formal', label: 'Muito Formal (Corporativo, Académico)' },
@@ -129,17 +173,7 @@ export default function App() {
     { value: 'texto_corrido', label: 'Mais Detalhada (Textos Corridos)' },
   ];
   
-  // A API Key é agora lida de uma variável de ambiente.
-  // Para desenvolvimento local, crie um ficheiro .env na raiz do projeto com:
-  // VITE_GEMINI_API_KEY=SUA_CHAVE_AQUI
-  // Para deploy (ex: Vercel), configure esta variável de ambiente nas definições do projeto.
-  const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
-  
-  // Se a API_KEY não estiver definida (ex: em alguns ambientes de preview ou se não configurada),
-  // podemos definir um valor de fallback ou um indicador.
-  // No entanto, para chamadas reais à API, ela PRECISA estar definida.
-  // A lógica em callGeminiAPI já trata o caso de API_KEY estar vazia.
-
+  const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY; 
   const API_URL_GEMINI = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
 
   const aiPersonaInstructions = `
@@ -150,13 +184,13 @@ Você aplica técnicas de hierarquização da informação, chunking (quebra de 
 Você adapta o tom, o ritmo e a linguagem da apresentação com base na intenção do usuário, seja para ensinar, convencer ou informar, e sempre garante que o conteúdo seja visualmente limpo, conciso e com narrativa fluida.
 `;
 
-  const callGeminiAPI = async (prompt, operationDescription = "A comunicar com a Inteligência Artificial...", usePersona = true) => {
+  const callGeminiAPI = async (prompt: string, operationDescription = "A comunicar com a Inteligência Artificial...", usePersona = true): Promise<string | null> => {
     setLoadingMessage(operationDescription);
     setIsLoading(true);
     setError(''); 
 
     if (!API_KEY) {
-        console.error("[callGeminiAPI] ERRO CRÍTICO: API Key (VITE_GEMINI_API_KEY) não está definida no ambiente!");
+        console.error("[callGeminiAPI] ERRO CRÍTICO: API Key (NEXT_PUBLIC_GEMINI_API_KEY) não está definida no ambiente!");
         setError("Erro de configuração: A Chave da API não foi encontrada. Verifique as variáveis de ambiente. Esta funcionalidade requer uma chave válida.");
         setIsLoading(false);
         if (operationDescription.includes("subtítulos")) {
@@ -199,7 +233,7 @@ Você adapta o tom, o ritmo e a linguagem da apresentação com base na intenç�
           console.warn("[callGeminiAPI] Resposta da API Gemini com estrutura inesperada ou texto em falta:", data);
           throw new Error("A IA retornou uma resposta com formato inesperado ou sem o texto esperado.");
         }
-    } catch (err) {
+    } catch (err: any) {
         console.error("[callGeminiAPI] Erro detalhado:", err);
         setError(`Erro ao comunicar com a IA: ${err.message}. Verifique a consola para mais detalhes.`);
         setIsLoading(false);
@@ -230,13 +264,10 @@ Liste cada subtítulo numa nova linha, sem numeração ou marcadores adicionais.
   }, []); 
 
   useEffect(() => {
-    // Verifica se a API_KEY está definida (pode ser string vazia se não configurada no .env)
-    // O alerta de erro principal sobre a API_KEY será dado pela callGeminiAPI se ela for chamada sem uma chave válida.
-    // Aqui, apenas decidimos se tentamos buscar os subtítulos ou usamos placeholders.
     if (API_KEY && API_KEY.trim() !== "") {
         fetchCommercialSubtitles();
     } else {
-        console.warn("API Key (VITE_GEMINI_API_KEY) não fornecida no ambiente. Subtítulos não serão gerados pela IA, usando placeholders.");
+        console.warn("API Key (NEXT_PUBLIC_GEMINI_API_KEY) não fornecida no ambiente. Subtítulos não serão gerados pela IA, usando placeholders.");
          setSuggestedSubtitles([
             "MercurIA: A sua próxima apresentação, reinventada.",
             "Transforme ideias em impacto com MercurIA.",
@@ -246,13 +277,13 @@ Liste cada subtítulo numa nova linha, sem numeração ou marcadores adicionais.
   }, [fetchCommercialSubtitles]);
 
 
-  const handleAiOptionChange = (event) => { 
+  const handleAiOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => { 
     const { name, checked } = event.target;
     setAiOptions(prevOptions => ({ ...prevOptions, [name]: checked, }));
   };
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
     if (file) {
       if (file.size > 5 * 1024 * 1024) { setError('O ficheiro é muito grande. Limite de 5MB.'); setUploadedFile(null); return; }
       const allowedTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
@@ -261,7 +292,7 @@ Liste cada subtítulo numa nova linha, sem numeração ou marcadores adicionais.
     }
   };
 
-  const handleInputTextChange = (e) => {
+  const handleInputTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputText(e.target.value); setBaseContentProcessed(false); 
   }
 
@@ -313,7 +344,7 @@ Conteúdo Processado: "${initialProcessedContent.substring(0, 3000)}..."`;
       }
   };
 
-  const handleFocusSelection = async (focus) => { 
+  const handleFocusSelection = async (focus: string) => { 
     setSelectedFocus(focus);
     setError(''); setContentForApproval('');
     
@@ -321,13 +352,13 @@ Conteúdo Processado: "${initialProcessedContent.substring(0, 3000)}..."`;
     const selectedContentStyleLabel = contentStyleOptions.find(s => s.value === contentStyle)?.label || contentStyle;
     
     let featuresInstructions = "";
-    if (aiOptions.generateTitles) {
+    if (aiOptions.generateTitles) { 
       featuresInstructions += `\n\nINSTRUÇÃO ADICIONAL PARA TÍTULOS: No início do conteúdo gerado, sugira 3 opções de títulos impactantes e claros para a apresentação geral, considerando o tom "${selectedToneLabel}" e os princípios de design instrucional. Formate assim:\n--- SUGESTÕES DE TÍTULO (Estilo Profissional e Didático) ---\n1. [Título 1]\n2. [Título 2]\n3. [Título 3]\n--- FIM SUGESTÕES DE TÍTULO ---`;
     }
-    if (aiOptions.suggestImages) {
+    if (aiOptions.suggestImages) { 
       featuresInstructions += `\n\nINSTRUÇÃO ADICIONAL PARA IMAGENS: Ao longo do conteúdo dos slides, onde for pedagogicamente relevante, insira placeholders como '[Sugestão de Imagem/Ilustração: Descreva uma imagem/ilustração que reforce a mensagem e facilite a compreensão aqui]'. As sugestões devem ser concisas e com propósito.`;
     }
-    if (aiOptions.suggestDataVisuals) {
+    if (aiOptions.suggestDataVisuals) { 
       featuresInstructions += `\n\nINSTRUÇÃO ADICIONAL PARA GRÁFICOS/TABELAS: Se identificar dados no conteúdo que possam ser visualizados de forma mais clara e didática, insira placeholders como '[Sugestão de Gráfico/Tabela: Descreva o tipo de gráfico/tabela, os dados a incluir e o objetivo da visualização aqui]'.`;
     }
 
@@ -574,118 +605,118 @@ Slide 2: [Título do Slide 2]
           </>
         )}
 
-        {currentStep === 'selectFocus' && (
-          <section className="animate-fadeIn">
-            <h2 className={`text-2xl font-semibold ${themeColors.textPrimary} mb-1`}>Passo 4: Escolha o Foco Principal</h2>
-            <p className={`${themeColors.textSecondary} text-sm mb-4`}>Com base no seu conteúdo, a IA sugere os seguintes focos. Selecione um para direcionar a criação dos slides.</p>
-            {initialProcessedContent && <details className={`mb-4 bg-white p-3 rounded-md text-xs border ${themeColors.borderDefault}`}>
-                <summary className={`cursor-pointer ${themeColors.textSecondary} hover:${themeColors.textPrimary} flex items-center`}><Icon name="info" className="w-4 h-4 mr-1 text-gray-400"/> Rever resumo do conteúdo base</summary>
-                <pre className={`whitespace-pre-wrap mt-2 max-h-32 overflow-y-auto ${themeColors.textSecondary} p-2 bg-gray-100 rounded`}>{initialProcessedContent}</pre>
-            </details>}
-            <div className="space-y-3">
-              {suggestedFocuses.length > 0 ? (
-                suggestedFocuses.map((focus, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleFocusSelection(focus)}
-                    className={`w-full text-left p-4 bg-white hover:bg-gray-100 border ${themeColors.borderDefault} rounded-lg transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-500`}
-                  >
-                    <span className={`${themeColors.textPrimary}`}>{focus}</span>
-                  </button>
-                ))
-              ) : <p className={`${themeColors.textSecondary}`}>Nenhum foco específico pôde ser sugerido. Pode tentar refinar o seu texto inicial ou prosseguir sem um foco específico (a IA usará o tema geral).</p>}
-            </div>
-            <button onClick={() => { setCurrentStep('initialInput'); }} className={`mt-6 w-full text-sm ${themeColors.textSecondary} hover:${themeColors.textPrimary} py-2 focus:outline-none ${themeColors.focusRing} rounded`}>
-              &larr; Voltar e Editar Opções
-            </button>
-          </section>
+        {currentStep === 'selectFocus' && ( 
+            <section className="animate-fadeIn">
+                <h2 className={`text-2xl font-semibold ${themeColors.textPrimary} mb-1`}>Passo 4: Escolha o Foco Principal</h2>
+                <p className={`${themeColors.textSecondary} text-sm mb-4`}>Com base no seu conteúdo, a IA sugere os seguintes focos. Selecione um para direcionar a criação dos slides.</p>
+                {initialProcessedContent && <details className={`mb-4 bg-white p-3 rounded-md text-xs border ${themeColors.borderDefault}`}>
+                    <summary className={`cursor-pointer ${themeColors.textSecondary} hover:${themeColors.textPrimary} flex items-center`}><Icon name="info" className="w-4 h-4 mr-1 text-gray-400"/> Rever resumo do conteúdo base</summary>
+                    <pre className={`whitespace-pre-wrap mt-2 max-h-32 overflow-y-auto ${themeColors.textSecondary} p-2 bg-gray-100 rounded`}>{initialProcessedContent}</pre>
+                </details>}
+                <div className="space-y-3">
+                {suggestedFocuses.length > 0 ? (
+                    suggestedFocuses.map((focus, index) => (
+                    <button
+                        key={index}
+                        onClick={() => handleFocusSelection(focus)}
+                        className={`w-full text-left p-4 bg-white hover:bg-gray-100 border ${themeColors.borderDefault} rounded-lg transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-500`}
+                    >
+                        <span className={`${themeColors.textPrimary}`}>{focus}</span>
+                    </button>
+                    ))
+                ) : <p className={`${themeColors.textSecondary}`}>Nenhum foco específico pôde ser sugerido. Pode tentar refinar o seu texto inicial ou prosseguir sem um foco específico (a IA usará o tema geral).</p>}
+                </div>
+                <button onClick={() => { setCurrentStep('initialInput'); }} className={`mt-6 w-full text-sm ${themeColors.textSecondary} hover:${themeColors.textPrimary} py-2 focus:outline-none ${themeColors.focusRing} rounded`}>
+                &larr; Voltar e Editar Opções
+                </button>
+            </section>
         )}
         
-        {currentStep === 'approveContent' && (
-          <section className="animate-fadeIn">
-            <h2 className={`text-2xl font-semibold ${themeColors.textPrimary} mb-1`}>Passo 5: Reveja e Aprove o Rascunho</h2>
-            <p className={`${themeColors.textSecondary} text-sm mb-2`}>Este é um rascunho do conteúdo para a sua apresentação, focado em: <strong className="text-teal-600">"{selectedFocus}"</strong>.</p>
-            <p className={`text-xs ${themeColors.textSecondary} mb-1`}>As seguintes opções de IA foram aplicadas (se selecionadas):</p>
-            <ul className="text-xs list-disc list-inside mb-4 pl-4 text-gray-500">
-                {aiOptions.generateTitles && <li>Opções de Título</li>}
-                {aiOptions.suggestImages && <li>Sugestões de Imagens/Ilustrações</li>}
-                {aiOptions.suggestDataVisuals && <li>Sugestões de Gráficos/Tabelas</li>}
-                {!aiOptions.generateTitles && !aiOptions.suggestImages && !aiOptions.suggestDataVisuals && <li>Nenhuma assistência criativa da IA foi selecionada para este rascunho.</li>}
-            </ul>
-            
-            <div className={`p-4 bg-white rounded-md max-h-[400px] overflow-y-auto border ${themeColors.borderInput} mb-4`}>
-              <pre className={`whitespace-pre-wrap ${themeColors.textPrimary} text-sm`}>{contentForApproval || "Nenhum conteúdo para aprovação gerado."}</pre>
-            </div>
-            <div className="mt-6 flex flex-col sm:flex-row gap-4">
-              <button 
-                onClick={() => setCurrentStep('selectFocus')} 
-                className={`w-full sm:w-auto flex-1 py-3 px-4 ${themeColors.buttonSecondaryBg} ${themeColors.buttonSecondaryText} hover:bg-gray-300 font-semibold rounded-lg transition-colors duration-150 flex items-center justify-center focus:outline-none ${themeColors.focusRing} focus:ring-offset-2`}
-              >
-                <Icon name="cornerDownRight" className="w-5 h-5 mr-2 transform scale-x-[-1]" />
-                Escolher Outro Foco
-              </button>
-              <button
-                onClick={handleApproval}
-                disabled={isLoading}
-                className={`w-full sm:w-auto flex-1 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
-              >
-                <Icon name="checkCircle" className="w-5 h-5 mr-2" />
-                Aprovar e Gerar Apresentação
-              </button>
-            </div>
-          </section>
+        {currentStep === 'approveContent' && ( 
+            <section className="animate-fadeIn">
+                <h2 className={`text-2xl font-semibold ${themeColors.textPrimary} mb-1`}>Passo 5: Reveja e Aprove o Rascunho</h2>
+                <p className={`${themeColors.textSecondary} text-sm mb-2`}>Este é um rascunho do conteúdo para a sua apresentação, focado em: <strong className="text-teal-600">"{selectedFocus}"</strong>.</p>
+                <p className={`text-xs ${themeColors.textSecondary} mb-1`}>As seguintes opções de IA foram aplicadas (se selecionadas):</p>
+                <ul className="text-xs list-disc list-inside mb-4 pl-4 text-gray-500">
+                    {aiOptions.generateTitles && <li>Opções de Título</li>}
+                    {aiOptions.suggestImages && <li>Sugestões de Imagens/Ilustrações</li>}
+                    {aiOptions.suggestDataVisuals && <li>Sugestões de Gráficos/Tabelas</li>}
+                    {!aiOptions.generateTitles && !aiOptions.suggestImages && !aiOptions.suggestDataVisuals && <li>Nenhuma assistência criativa da IA foi selecionada para este rascunho.</li>}
+                </ul>
+                
+                <div className={`p-4 bg-white rounded-md max-h-[400px] overflow-y-auto border ${themeColors.borderInput} mb-4`}>
+                <pre className={`whitespace-pre-wrap ${themeColors.textPrimary} text-sm`}>{contentForApproval || "Nenhum conteúdo para aprovação gerado."}</pre>
+                </div>
+                <div className="mt-6 flex flex-col sm:flex-row gap-4">
+                <button 
+                    onClick={() => setCurrentStep('selectFocus')} 
+                    className={`w-full sm:w-auto flex-1 py-3 px-4 ${themeColors.buttonSecondaryBg} ${themeColors.buttonSecondaryText} hover:bg-gray-300 font-semibold rounded-lg transition-colors duration-150 flex items-center justify-center focus:outline-none ${themeColors.focusRing} focus:ring-offset-2`}
+                >
+                    <Icon name="cornerDownRight" className="w-5 h-5 mr-2 transform scale-x-[-1]" />
+                    Escolher Outro Foco
+                </button>
+                <button
+                    onClick={handleApproval}
+                    disabled={isLoading}
+                    className={`w-full sm:w-auto flex-1 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
+                >
+                    <Icon name="checkCircle" className="w-5 h-5 mr-2" />
+                    Aprovar e Gerar Apresentação
+                </button>
+                </div>
+            </section>
         )}
 
-        {currentStep === 'finalResult' && (
-          <section className={`animate-fadeIn`}>
-            <h2 className="text-2xl font-semibold text-green-600 mb-4 flex items-center">
-              <Icon name="checkCircle" className="w-7 h-7 mr-2" />
-              Passo 6: A sua Apresentação está Pronta!
-            </h2>
-            {finalResult && (
-                <>
-                    <div className={`space-y-1 ${themeColors.textSecondary} mb-4 p-4 border ${themeColors.borderDefault} rounded-md bg-white`}>
-                      <p><strong>Ficheiro (Simulado):</strong> {finalResult.fileName}</p>
-                      <p><strong>Número de Slides:</strong> {finalResult.slides}</p>
-                      <p><strong>Cor Primária do Tema:</strong> 
-                        <span style={{ backgroundColor: finalResult.color, padding: '2px 8px', borderRadius: '4px', marginLeft: '8px', border: `1px solid ${finalResult.color === '#FFFFFF' ? '#DDDDDD' : 'transparent'}` }} className={finalResult.color === '#FFFFFF' ? 'text-black' : 'text-white'}>
-                          {finalResult.color}
-                        </span>
-                      </p>
-                      <p><strong>Tom de Voz:</strong> {finalResult.tone}</p>
-                      <p><strong>Estilo do Conteúdo:</strong> {finalResult.style}</p>
-                      <p><strong>Foco Principal:</strong> {finalResult.focus}</p>
-                      <p><strong>Assistência IA utilizada:</strong> 
-                        {Object.entries(finalResult.aiOptionsUsed).filter(([key, value]) => value).map(([key]) => {
-                            if (key === 'generateTitles') return 'Opções de Título';
-                            if (key === 'suggestImages') return 'Sugestões de Imagens';
-                            if (key === 'suggestDataVisuals') return 'Sugestões de Gráficos/Tabelas';
-                            return key;
-                        }).join(', ') || 'Nenhuma'}
-                      </p>
-                    </div>
-                    
-                    <details className={`mb-4 bg-white p-3 rounded-md text-xs border ${themeColors.borderDefault}`}>
-                        <summary className={`cursor-pointer ${themeColors.textSecondary} hover:${themeColors.textPrimary} flex items-center`}><Icon name="info" className="w-4 h-4 mr-1 text-gray-400"/> Ver conteúdo final aprovado (simulação)</summary>
-                        <pre className={`whitespace-pre-wrap mt-2 max-h-40 overflow-y-auto ${themeColors.textSecondary} p-2 bg-gray-100 rounded`}>{finalResult.approvedContent}</pre>
-                    </details>
-                    
-                    <button
-                      onClick={() => alert('Download simulado! A geração de PPTX real requer backend.')}
-                      className={`mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
-                    >
-                      <Icon name="download" className="w-5 h-5 mr-2" />
-                      Baixar Apresentação (Simulado)
-                    </button>
-                </>
-            )}
-            <button onClick={resetFlow} className={`mt-4 w-full text-sm ${themeColors.textSecondary} hover:${themeColors.textPrimary} py-2 focus:outline-none ${themeColors.focusRing} rounded`}>
-              Criar Nova Apresentação
-            </button>
-            <p className={`text-xs ${themeColors.textSecondary} mt-3 text-center`}>
-              Lembre-se: A geração e download de ficheiros .pptx reais exigem funcionalidades de backend.
-            </p>
-          </section>
+        {currentStep === 'finalResult' && ( 
+            <section className={`animate-fadeIn`}>
+                <h2 className="text-2xl font-semibold text-green-600 mb-4 flex items-center">
+                <Icon name="checkCircle" className="w-7 h-7 mr-2" />
+                Passo 6: A sua Apresentação está Pronta!
+                </h2>
+                {finalResult && (
+                    <>
+                        <div className={`space-y-1 ${themeColors.textSecondary} mb-4 p-4 border ${themeColors.borderDefault} rounded-md bg-white`}>
+                        <p><strong>Ficheiro (Simulado):</strong> {finalResult.fileName}</p>
+                        <p><strong>Número de Slides:</strong> {finalResult.slides}</p>
+                        <p><strong>Cor Primária do Tema:</strong> 
+                            <span style={{ backgroundColor: finalResult.color, padding: '2px 8px', borderRadius: '4px', marginLeft: '8px', border: `1px solid ${finalResult.color === '#FFFFFF' ? '#DDDDDD' : 'transparent'}` }} className={finalResult.color === '#FFFFFF' ? 'text-black' : 'text-white'}>
+                            {finalResult.color}
+                            </span>
+                        </p>
+                        <p><strong>Tom de Voz:</strong> {finalResult.tone}</p>
+                        <p><strong>Estilo do Conteúdo:</strong> {finalResult.style}</p>
+                        <p><strong>Foco Principal:</strong> {finalResult.focus}</p>
+                        <p><strong>Assistência IA utilizada:</strong> 
+                            {Object.entries(finalResult.aiOptionsUsed).filter(([, value]) => value).map(([key]) => {
+                                if (key === 'generateTitles') return 'Opções de Título';
+                                if (key === 'suggestImages') return 'Sugestões de Imagens';
+                                if (key === 'suggestDataVisuals') return 'Sugestões de Gráficos/Tabelas';
+                                return key;
+                            }).join(', ') || 'Nenhuma'}
+                        </p>
+                        </div>
+                        
+                        <details className={`mb-4 bg-white p-3 rounded-md text-xs border ${themeColors.borderDefault}`}>
+                            <summary className={`cursor-pointer ${themeColors.textSecondary} hover:${themeColors.textPrimary} flex items-center`}><Icon name="info" className="w-4 h-4 mr-1 text-gray-400"/> Ver conteúdo final aprovado (simulação)</summary>
+                            <pre className={`whitespace-pre-wrap mt-2 max-h-40 overflow-y-auto ${themeColors.textSecondary} p-2 bg-gray-100 rounded`}>{finalResult.approvedContent}</pre>
+                        </details>
+                        
+                        <button
+                        onClick={() => alert('Download simulado! A geração de PPTX real requer backend.')}
+                        className={`mt-6 w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2`}
+                        >
+                        <Icon name="download" className="w-5 h-5 mr-2" />
+                        Baixar Apresentação (Simulado)
+                        </button>
+                    </>
+                )}
+                <button onClick={resetFlow} className={`mt-4 w-full text-sm ${themeColors.textSecondary} hover:${themeColors.textPrimary} py-2 focus:outline-none ${themeColors.focusRing} rounded`}>
+                Criar Nova Apresentação
+                </button>
+                <p className={`text-xs ${themeColors.textSecondary} mt-3 text-center`}>
+                Lembre-se: A geração e download de ficheiros .pptx reais exigem funcionalidades de backend.
+                </p>
+            </section>
         )}
       </main>
       
