@@ -253,64 +253,68 @@ Slide 2: [Título do Slide 2]
 
   const colorInputStyle = { width: '100%', height: '40px', border: '1px solid #CBD5E1', borderRadius: '0.375rem', padding: '2px' }; // Tailwind slate-300
   const themeColors = { 
-    background: 'bg-slate-100', // Fundo ligeiramente acinzentado
+    background: 'bg-slate-100', 
     cardBackground: 'bg-white', 
     textPrimary: 'text-slate-800', 
     textSecondary: 'text-slate-600', 
-    textAccent: 'text-cyan-600', // Ciano para acentos
+    textAccent: 'text-cyan-600', 
     borderDefault: 'border-slate-300', 
     borderInput: 'border-slate-400', 
-    buttonPrimaryBg: 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700', // Gradiente para botões primários
+    buttonPrimaryBg: 'bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700', 
     buttonPrimaryText: 'text-white', 
     buttonSecondaryBg: 'bg-slate-200 hover:bg-slate-300', 
     buttonSecondaryText: 'text-slate-700', 
-    focusRing: 'focus:ring-cyan-500', // Anel de foco ciano
+    focusRing: 'focus:ring-cyan-500', 
     errorBg: 'bg-red-50', errorBorder: 'border-red-400', errorText: 'text-red-700',
   };
   
-  const logoUrl = "https://i.imgur.com/ygDaAq9.jpg"; // Link direto da imagem
+  const logoUrl = "https://i.imgur.com/ygDaAq9.jpg"; 
 
   return (
-    <div className={`min-h-screen ${themeColors.background} ${themeColors.textPrimary} p-4 sm:p-6 lg:p-8 flex flex-col items-center font-sans`}>
-      <header className="w-full max-w-5xl mx-auto px-4 sm:px-0 py-6 sm:py-8">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            {/* Logo à Esquerda */}
-            <div className="flex items-center">
-                {logoError ? (
-                    <h1 className="text-3xl sm:text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600">
-                        MercurIA
-                    </h1>
-                ) : (
-                    <img 
-                        src={logoUrl} 
-                        alt="MercurIA Logo" 
-                        className="h-12 sm:h-14 md:h-16 w-auto" // Tamanho da logo ajustado
-                        onError={() => setLogoError(true)} 
-                    />
-                )}
-            </div>
-
-            {/* Subtítulo e Botão de Refresh - Centralizado em telas pequenas, à direita em maiores */}
-            <div className="text-center sm:text-right relative group mt-2 sm:mt-0">
-                <div className="h-10 flex items-center justify-center sm:justify-end">
-                    {isLoading && loadingMessage.includes("subtítulos") && <p className={`${themeColors.textSecondary} text-base sm:text-lg italic`}>A gerar subtítulo...</p>}
-                    {!isLoading && suggestedSubtitles.length > 0 && ( <p className={`${themeColors.textSecondary} text-base sm:text-lg`}>{suggestedSubtitles[currentSubtitleIndex]}</p> )}
-                    {!isLoading && suggestedSubtitles.length === 0 && ( <p className={`${themeColors.textSecondary} text-base sm:text-lg`}>Transforme ideias em apresentações poderosas.</p> )}
+    <div className={`min-h-screen ${themeColors.background} ${themeColors.textPrimary} flex flex-col items-center font-sans`}>
+      {/* Cabeçalho agora ocupa toda a largura com padding interno */}
+      <header className="w-full bg-white shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5"> {/* Aumentado max-w e padding */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                {/* Logo à Esquerda */}
+                <div className="flex items-center">
+                    {logoError ? (
+                        <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600">
+                            MercurIA
+                        </h1>
+                    ) : (
+                        <img 
+                            src={logoUrl} 
+                            alt="MercurIA Logo" 
+                            className="h-10 sm:h-12 md:h-14 w-auto" // Tamanho da logo ajustado
+                            onError={() => setLogoError(true)} 
+                        />
+                    )}
                 </div>
-                <button 
-                    onClick={fetchCommercialSubtitles} 
-                    disabled={isLoading && !loadingMessage.includes("subtítulos") }
-                    title="Gerar novo subtítulo"
-                    className={`absolute -top-1 -right-1 sm:right-auto sm:left-full sm:ml-2 sm:top-1/2 sm:-translate-y-1/2 p-1.5 rounded-full text-slate-400 hover:text-cyan-600 hover:bg-cyan-100 focus:outline-none focus:ring-2 ${themeColors.focusRing} focus:ring-offset-1 transition-opacity duration-150 opacity-0 group-hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed`}
-                    aria-label="Gerar novo subtítulo"
-                >
-                    <Icon name="refreshCw" className="w-4 h-4" />
-                </button>
+
+                {/* Subtítulo e Botão de Refresh */}
+                <div className="text-center sm:text-right relative group">
+                    <div className="h-8 flex items-center justify-center sm:justify-end">
+                        {isLoading && loadingMessage.includes("subtítulos") && <p className={`${themeColors.textSecondary} text-sm sm:text-base italic`}>A gerar subtítulo...</p>}
+                        {!isLoading && suggestedSubtitles.length > 0 && ( <p className={`${themeColors.textSecondary} text-sm sm:text-base`}>{suggestedSubtitles[currentSubtitleIndex]}</p> )}
+                        {!isLoading && suggestedSubtitles.length === 0 && ( <p className={`${themeColors.textSecondary} text-sm sm:text-base`}>Transforme ideias em apresentações poderosas.</p> )}
+                    </div>
+                    <button 
+                        onClick={fetchCommercialSubtitles} 
+                        disabled={isLoading && !loadingMessage.includes("subtítulos") }
+                        title="Gerar novo subtítulo"
+                        className={`absolute -top-1 -right-1 sm:left-full sm:ml-2 sm:top-1/2 sm:-translate-y-1/2 p-1.5 rounded-full text-slate-400 hover:text-cyan-600 hover:bg-cyan-100 focus:outline-none focus:ring-2 ${themeColors.focusRing} focus:ring-offset-1 transition-opacity duration-150 opacity-0 group-hover:opacity-100 disabled:opacity-50 disabled:cursor-not-allowed`}
+                        aria-label="Gerar novo subtítulo"
+                    >
+                        <Icon name="refreshCw" className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </button>
+                </div>
             </div>
         </div>
       </header>
 
-      <main className={`w-full max-w-3xl ${themeColors.cardBackground} p-6 sm:p-8 rounded-xl shadow-2xl space-y-8 border ${themeColors.borderDefault}`}>
+      {/* Conteúdo Principal - agora mais largo */}
+      <main className={`w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 ${themeColors.cardBackground} mt-0 sm:mt-8 rounded-none sm:rounded-xl shadow-none sm:shadow-2xl space-y-8 border-0 sm:border ${themeColors.borderDefault}`}>
         <ProgressBar currentStepKey={currentStep} />
         
         {isLoading && (<div className="fixed inset-0 bg-slate-700/75 flex items-center justify-center z-50 backdrop-blur-sm"><div className={`flex flex-col items-center bg-white p-10 rounded-xl shadow-2xl border ${themeColors.borderDefault}`}><Icon name="loader" className={`w-14 h-14 ${themeColors.textAccent} mb-5`} /><p className={`text-xl ${themeColors.textPrimary}`}>{loadingMessage}</p></div></div>)}
@@ -318,7 +322,7 @@ Slide 2: [Título do Slide 2]
 
         {currentStep === 'initialInput' && (
           <>
-            <div className="space-y-8"> {/* Aumentado o espaçamento entre secções */}
+            <div className="space-y-8"> 
                 <section>
                     <h2 className={`text-2xl sm:text-3xl font-semibold ${themeColors.textPrimary} mb-2`}>Passo 1: O Seu Conteúdo</h2>
                     <p className={`${themeColors.textSecondary} text-sm mb-5`}>Forneça o material base para a sua apresentação.</p>
@@ -424,7 +428,7 @@ Slide 2: [Título do Slide 2]
         )}
       </main>
       
-      <footer className={`w-full max-w-5xl mx-auto px-4 sm:px-0 mt-12 py-6 text-center text-sm ${themeColors.textSecondary} border-t border-slate-200`}>
+      <footer className={`w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 py-8 text-center text-sm ${themeColors.textSecondary} border-t border-slate-200`}>
         <p>&copy; {new Date().getFullYear()} MercurIA. Todos os direitos reservados (Protótipo).</p>
       </footer>
       <style jsx global>{`
