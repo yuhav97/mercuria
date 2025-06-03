@@ -46,7 +46,7 @@ export default function Home() {
           <h2 className="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 mb-8">
             Crie Apresentações Poderosas
           </h2>
-          <Link href="src/app/page.tsx" passHref> {/* passHref é uma boa prática com botões ou elementos customizados dentro do Link */}
+          <Link href="src/app/page" passHref> {/* passHref é uma boa prática com botões ou elementos customizados dentro do Link */}
             <button className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:bg-gradient-to-l hover:from-blue-600 hover:to-cyan-500 font-semibold rounded-lg text-white transition-shadow hover-scale"> {/* Adicionado hover-scale aqui também se desejado */}
               Começar Agora
             </button>
