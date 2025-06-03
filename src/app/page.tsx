@@ -108,6 +108,7 @@ export default function MercurIAHomePage() {
             try { 
                 const eData = await response.json(); 
                 if (eData?.error?.message) errMsg = eData.error.message; 
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             } catch (_jsonErr) { /* Silenciar erro de parse do JSON de erro, já temos uma msg base */ } 
             throw new Error(errMsg); 
         }
@@ -146,9 +147,10 @@ export default function MercurIAHomePage() {
         if (uploadedFile.type === 'text/plain') { 
             try { 
                 baseContent = await uploadedFile.text(); 
-            } catch (_e) { // Variável 'e' prefixada com _ para indicar que é intencionalmente não usada
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            } catch (_e) { 
                 baseContent = `Falha ao ler: ${uploadedFile.name}.`;
-                console.error("Erro ao ler ficheiro de texto:", _e); // Opcional: logar o erro real
+                console.error("Erro ao ler ficheiro de texto:", _e); 
             }
         } 
     }
