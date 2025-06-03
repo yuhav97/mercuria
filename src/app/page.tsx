@@ -8,6 +8,7 @@ import { MdDesignServices } from 'react-icons/md';
 const poppins = Poppins({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
 export default function Home() {
   return (
+    // A CORREÇÃO ESTÁ AQUI NESTA LINHA:
     <div className={${poppins.className} min-h-screen bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 text-white}>
       {/* Estilos inline para animações */}
       <style jsx global>{
