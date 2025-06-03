@@ -1,5 +1,11 @@
 "use client"; 
+import Home from './home';
 
+const Page = () => {
+  return <Home />;
+};
+
+export default Page;
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
     Loader2, FileText, Palette, Layers, UploadCloud, Wand2, Download, Mic2, 
