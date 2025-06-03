@@ -1,4 +1,4 @@
-"use client"; // Necessário para componentes com hooks no Next.js App Router
+"use client"; 
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { 
@@ -126,6 +126,22 @@ const ProgressBar: React.FC<ProgressBarProps> = ({ currentStepKey }) => {
 };
 // --- Fim da Barra de Progresso ---
 
+// --- Interface para o resultado final ---
+interface FinalResultType {
+    message: string;
+    fileName: string;
+    slides: number;
+    color: string;
+    tone: string;
+    style: string;
+    focus: string;
+    approvedContent: string;
+    aiOptionsUsed: {
+        generateTitles: boolean;
+        suggestImages: boolean;
+        suggestDataVisuals: boolean;
+    };
+}
 
 // --- Início do Componente Principal da Aplicação (MercurIA Page) ---
 export default function MercurIAHomePage() {
@@ -158,7 +174,7 @@ export default function MercurIAHomePage() {
   const [suggestedFocuses, setSuggestedFocuses] = useState<string[]>([]);
   const [selectedFocus, setSelectedFocus] = useState('');
   const [contentForApproval, setContentForApproval] = useState('');
-  const [finalResult, setFinalResult] = useState<any>(null);
+  const [finalResult, setFinalResult] = useState<FinalResultType | null>(null); // Usar a interface definida
 
   const toneOptions = [
     { value: 'muito_formal', label: 'Muito Formal (Corporativo, Académico)' },
@@ -184,7 +200,7 @@ Você aplica técnicas de hierarquização da informação, chunking (quebra de 
 Você adapta o tom, o ritmo e a linguagem da apresentação com base na intenção do usuário, seja para ensinar, convencer ou informar, e sempre garante que o conteúdo seja visualmente limpo, conciso e com narrativa fluida.
 `;
 
-  const callGeminiAPI = async (prompt: string, operationDescription = "A comunicar com a Inteligência Artificial...", usePersona = true): Promise<string | null> => {
+  const callGeminiAPI = useCallback(async (prompt: string, operationDescription = "A comunicar com a Inteligência Artificial...", usePersona = true): Promise<string | null> => {
     setLoadingMessage(operationDescription);
     setIsLoading(true);
     setError(''); 
@@ -233,13 +249,17 @@ Você adapta o tom, o ritmo e a linguagem da apresentação com base na intenç�
           console.warn("[callGeminiAPI] Resposta da API Gemini com estrutura inesperada ou texto em falta:", data);
           throw new Error("A IA retornou uma resposta com formato inesperado ou sem o texto esperado.");
         }
-    } catch (err: any) {
+    } catch (err: unknown) { // Alterado de any para unknown
+        let errorMessage = "Ocorreu um erro desconhecido";
+        if (err instanceof Error) {
+            errorMessage = err.message;
+        }
         console.error("[callGeminiAPI] Erro detalhado:", err);
-        setError(`Erro ao comunicar com a IA: ${err.message}. Verifique a consola para mais detalhes.`);
+        setError(`Erro ao comunicar com a IA: ${errorMessage}. Verifique a consola para mais detalhes.`);
         setIsLoading(false);
         return null; 
     }
-  };
+  }, [API_KEY]); // Adicionado API_KEY como dependência
 
   const fetchCommercialSubtitles = useCallback(async () => {
     const promptSubtitles = `Você é um copywriter especialista em criar slogans e subtítulos comerciais e chamativos para produtos de tecnologia.
@@ -261,7 +281,7 @@ Liste cada subtítulo numa nova linha, sem numeração ou marcadores adicionais.
         setSuggestedSubtitles(["MercurIA: A magia da IA nas suas apresentações.", "Crie slides profissionais com MercurIA.", "MercurIA: Inovação e clareza para comunicar."]);
         setCurrentSubtitleIndex(0);
     }
-  }, []); 
+  }, [callGeminiAPI]); // Adicionado callGeminiAPI à lista de dependências
 
   useEffect(() => {
     if (API_KEY && API_KEY.trim() !== "") {
@@ -274,7 +294,7 @@ Liste cada subtítulo numa nova linha, sem numeração ou marcadores adicionais.
             "MercurIA - Apresentações brilhantes, sem esforço."
         ]);
     }
-  }, [fetchCommercialSubtitles]);
+  }, [fetchCommercialSubtitles, API_KEY]); // Adicionado API_KEY à lista de dependências
 
 
   const handleAiOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => { 
