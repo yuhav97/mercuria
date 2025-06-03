@@ -1,74 +1,99 @@
 "use client";
-import React from 'react';
 
-const Page = () => {
+import Link from 'next/link';
+import { Poppins } from 'next/font/google';
+import { AiOutlineRocket } from 'react-icons/ai';
+import { GiArtificialIntelligence } from 'react-icons/gi';
+import { FaPalette } from 'react-icons/fa';
+import { MdDesignServices } from 'react-icons/md';
+
+const poppins = Poppins({ subsets: ['latin'], weight: ['400', '600'] }); // Corrigido: weights -> weight
+
+export default function Home() {
   return (
-    <div className="min-h-screen bg-slate-100 font-sans">
-      <header className="w-full bg-white shadow-sm sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-2 sm:gap-4">
-            <div className="flex items-center">
-              <h1 className="text-2xl sm:text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600">
-                MercurIA
-              </h1>
-            </div>
-          </div>
+    <div className={`${poppins.className} min-h-screen bg-gradient-to-r from-indigo-900 via-purple-800 to-pink-600 text-white`}>
+      {/* Estilos inline para animações */}
+      <style jsx global>{`
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); }
+        }
+        .animate-pulse {
+          animation: pulse 2s infinite;
+        }
+        .hover-scale {
+          transition: all 0.3s;
+        }
+        .hover-scale:hover { /* Corrigido: sintaxe do hover */
+          transform: scale(1.03);
+          box-shadow: 0 0 25px rgba(74, 172, 255, 0.5);
+        }
+      `}</style>
+
+      {/* Header */}
+      <header className="sticky top-0 z-50 w-full bg-black/30 backdrop-blur-lg px-4 sm:px-8 py-4">
+        <div className="max-w-7xl mx-auto flex items-center">
+          <h1 className="text-3xl font-extrabold text-white flex items-center"> {/* Adicionado flex e items-center para alinhar o ícone */}
+            MercurIA
+            <GiArtificialIntelligence size={32} className="ml-2 animate-pulse text-cyan-400" />
+          </h1>
         </div>
       </header>
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10 bg-white mt-0 sm:rounded-b-xl shadow-none sm:shadow-2xl space-y-10 border-x-0 border-b-0 sm:border border-slate-300">
-        <div className="hero text-center py-12">
-          <h1 className="text-4xl sm:text-5xl font-bold text-slate-800 mb-4">Crie Apresentações Poderosas com MercurIA</h1>
-          <p className="text-lg sm:text-xl text-slate-600 mb-8">Transforme suas ideias em apresentações impactantes com o poder da IA.</p>
-          <button className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-150">Começar Agora</button>
+
+      {/* Seção Hero */}
+      <section className="py-20 max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="bg-black/60 backdrop-blur-sm rounded-3xl p-12 shadow-lg shadow-cyan-900/50">
+          <h2 className="text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-600 mb-8">
+            Crie Apresentações Poderosas
+          </h2>
+           <Link href="/page" passHref>
+     <button
+       className="px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:bg-gradient-to-l hover:from-blue-600 hover:to-cyan-500 font-semibold rounded-lg text-white transition-shadow hover-scale"
+       onClick={() => console.log('Botão clicado!')} // ADICIONE ESTA LINHA
+     >
+       Começar Agora
+     </button>
+   </Link>
+
+		<br />
+		<Link href="/page">
+		Link de Texto Simples para /page
+		</Link>
         </div>
-        <div className="benefits py-12">
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-6 text-center">Por que escolher MercurIA?</h2>
-          <div className="benefit-cards flex flex-wrap justify-center gap-6">
-            <div className="benefit-card bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/3">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">Design Profissional</h3>
-              <p className="text-slate-600">Crie apresentações com designs modernos e profissionais.</p>
-            </div>
-            <div className="benefit-card bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/3">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">Assistência de IA</h3>
-              <p className="text-slate-600">Receba sugestões personalizadas de conteúdo e layout.</p>
-            </div>
-            <div className="benefit-card bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/3">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">Facilidade de Uso</h3>
-              <p className="text-slate-600">Interface intuitiva para criar apresentações sem complicações.</p>
-            </div>
+      </section>
+
+      {/* Seção de Benefícios */}
+      <section className="py-16 max-w-7xl mx-auto px-4 sm:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card 1 - Design Profissional */}
+          <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-6 hover:shadow-lg hover-scale">
+            <FaPalette size={40} className="text-cyan-400 mb-4" />
+            <h3 className="text-xl font-semibold text-white">Design Profissional</h3>
+            <p className="text-slate-400">Criações modernas e personalizáveis</p>
+          </div>
+
+          {/* Card 2 - Recursos Avançados */}
+          <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-6 hover:shadow-lg hover-scale">
+            <MdDesignServices size={40} className="text-cyan-400 mb-4" />
+            <h3 className="text-xl font-semibold text-white">Recursos Avançados</h3>
+            <p className="text-slate-400">Ferramentas inteligentes e intuitivas</p>
+          </div>
+
+          {/* Card 3 - Performance */}
+          <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 rounded-2xl p-6 hover:shadow-lg hover-scale">
+            <AiOutlineRocket size={40} className="text-cyan-400 mb-4" />
+            <h3 className="text-xl font-semibold text-white">Alta Performance</h3>
+            <p className="text-slate-400">Velocidade e responsividade garantidas</p>
           </div>
         </div>
-        <div className="how-it-works py-12 bg-slate-50">
-          <h2 className="text-3xl sm:text-4xl font-bold text-slate-800 mb-6 text-center">Como funciona o MercurIA?</h2>
-          <div className="steps flex flex-wrap justify-center gap-6">
-            <div className="step bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/4">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">1. Forneça seu Conteúdo</h3>
-              <p className="text-slate-600">Digite ou carregue seu texto, pontos chave, ou rascunho.</p>
-            </div>
-            <div className="step bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/4">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">2. Personalize</h3>
-              <p className="text-slate-600">Defina o tom de voz, estilo, e outras opções de personalização.</p>
-            </div>
-            <div className="step bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/4">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">3. Deixe a IA Trabalhar</h3>
-              <p className="text-slate-600">Nossa IA processa seu conteúdo e cria uma apresentação personalizada.</p>
-            </div>
-            <div className="step bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition-shadow duration-200 w-full sm:w-1/4">
-              <h3 className="text-xl font-semibold text-slate-700 mb-2">4. Reveja e Compartilhe</h3>
-              <p className="text-slate-600">Reveja sua apresentação e compartilhe com o mundo.</p>
-            </div>
-          </div>
+      </section>
+
+      {/* Rodapé */}
+      <footer className="bg-gradient-to-r from-indigo-900 to-purple-900 py-6 mt-12">
+        <div className="max-w-7xl mx-auto text-center text-slate-400 text-sm">
+          © {new Date().getFullYear()} MercurIA. Todos os direitos reservados.
         </div>
-        <div className="call-to-action text-center py-12 bg-gradient-to-r from-cyan-500 to-blue-600 text-white">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Pronto para criar sua primeira apresentação?</h2>
-          <button className="bg-white text-cyan-600 hover:bg-slate-100 font-semibold py-3 px-6 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-150">Começar Agora</button>
-        </div>
-      </main>
-      <footer className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12 py-8 text-center text-sm text-slate-600 border-t border-slate-200">
-        <p>&copy; {new Date().getFullYear()} MercurIA. Todos os direitos reservados.</p>
       </footer>
     </div>
   );
-};
-
-export default Page;
+}
