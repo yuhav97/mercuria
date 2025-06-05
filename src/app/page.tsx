@@ -1,170 +1,177 @@
 "use client";
-import Link from 'next/link';
-import { Poppins } from 'next/font/google';
-import { AiOutlineRocket, AiOutlineBulb } from 'react-icons/ai';
-import { GiArtificialIntelligence, GiMagicSwirl } from 'react-icons/gi';
-import { FaPalette } from 'react-icons/fa';
-import { MdDesignServices } from 'react-icons/md';
-const poppins = Poppins({ subsets: ['latin'], weight: ['400', '500', '600', '700'] });
-export default function Home() {
+
+import { useState, ChangeEvent } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { exportPPTX } from "./utils/exportPptx";
+
+const toneOptions = [
+  { label: "Profissional", description: "Objetivo, direto e com linguagem formal." },
+  { label: "Didático", description: "Explicativo, com foco em facilitar o aprendizado." },
+  { label: "Técnico", description: "Preciso, com uso de terminologia específica da área." },
+  { label: "Executivo", description: "Clareza e foco em resultados, com tom estratégico." },
+  { label: "Criativo", description: "Inovador, com analogias, metáforas e linguagem envolvente." },
+  { label: "Motivacional", description: "Inspirador, com mensagens positivas e energizantes." },
+  { label: "Persuasivo", description: "Voltado à conversão e convencimento, com argumentos fortes." },
+  { label: "Institucional", description: "Formal, representando a voz de uma organização." },
+  { label: "Acadêmico", description: "Estruturado, com embasamento teórico e linguagem formal." },
+  { label: "Descontraído", description: "Informal, leve, como uma conversa entre amigos." }
+];
+
+const formatOptions = [
+  { label: "Bullet points", description: "Resumo conciso com marcadores e tópicos curtos." },
+  { label: "Blocos de texto", description: "Texto estruturado em parágrafos completos." }
+];
+
+export default function Page() {
+  const [originalText, setOriginalText] = useState("");
+  const [improvedText, setImprovedText] = useState("");
+  const [slideCount, setSlideCount] = useState(3);
+  const [selectedTone, setSelectedTone] = useState("Profissional");
+  const [selectedFormat, setSelectedFormat] = useState("Bullet points");
+  const [message, setMessage] = useState("");
+
+  const rewriteContent = async (text: string): Promise<string> => {
+    try {
+      const res = await fetch("/api/rewrite", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text,
+          tone: selectedTone,
+          format: selectedFormat,
+          slides: slideCount,
+          model: "gpt-4-turbo",
+          persona: `Você é um revisor e estruturador de conteúdo com ampla experiência em transformar textos e informações em apresentações de PowerPoint altamente profissionais, claras, didáticas e visualmente organizadas. Seu objetivo é revisar o conteúdo recebido, extrair os pontos mais relevantes e estruturá-los de forma lógica, pedagógica e impactante, sempre considerando princípios de design instrucional que promovem compreensão, retenção e engajamento.
+
+Você aplica técnicas de hierarquização da informação, chunking (quebra de conteúdo em blocos digestíveis), uso estratégico de recursos visuais e definição clara de objetivos de aprendizagem, quando aplicável. Sua comunicação visual é planejada para facilitar o aprendizado, respeitar o perfil do público-alvo (executivo, técnico, comercial ou acadêmico) e reforçar as mensagens centrais de forma acessível e eficaz.
+
+Você adapta o tom, o ritmo e a linguagem da apresentação com base na intenção do usuário, seja para ensinar, convencer ou informar, e sempre garante que o conteúdo seja visualmente limpo, conciso e com narrativa fluida. Sua abordagem é detalhista e busca explorar os conceitos com profundidade, contextualizando, explicando e enriquecendo cada ponto com exemplos e desdobramentos práticos.`
+        }),
+      });
+      if (!res.ok) throw new Error("Erro na requisição");
+      const data = await res.json();
+      return data.rewrittenText;
+    } catch (error) {
+      console.error("Erro ao reescrever texto:", error);
+      setMessage("❌ Erro ao processar o conteúdo com IA.");
+      return text;
+    }
+  };
+
+  const handleRewrite = async () => {
+    if (!originalText.trim()) {
+      setMessage("⚠️ O conteúdo está vazio.");
+      return;
+    }
+    const improved = await rewriteContent(originalText);
+    setImprovedText(improved);
+    setMessage("✅ Conteúdo melhorado com sucesso!");
+  };
+
+  const handleExport = async () => {
+    if (!improvedText.trim()) {
+      setMessage("⚠️ O conteúdo está vazio.");
+      return;
+    }
+    const blocks = improvedText.split(/\n{2,}/).slice(0, slideCount);
+    const titles = blocks.map((_, i) => `Slide ${i + 1}`);
+    await exportPPTX(blocks, titles);
+    setMessage("📥 Apresentação exportada com sucesso!");
+  };
+
   return (
-    // A CORREÇÃO ESTÁ AQUI NESTA LINHA:
-    <div className={${poppins.className} min-h-screen bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-700 text-white}>
-      {/* Estilos inline para animações */}
-      <style jsx global>{
-        @keyframes pulse {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.05); }
-        }
-        .animate-pulse-icon { /* Renomeado para evitar conflito com Tailwind pulse */
-          animation: pulse 2s infinite;
-        }
-        .hover-scale-lg { /* Efeito de hover um pouco maior */
-          transition: all 0.3s ease-in-out;
-        }
-        .hover-scale-lg:hover {
-          transform: scale(1.05); /* Aumentado o scale */
-          box-shadow: 0 10px 30px rgba(74, 172, 255, 0.4); /* Sombra mais pronunciada */
-        }
-        .card-hover {
-          transition: all 0.3s ease-in-out;
-        }
-        .card-hover:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-        }
-}</style>
-  {/* Header */}
-  &lt;header className="sticky top-0 z-50 w-full bg-black/40 backdrop-blur-xl px-4 sm:px-8 py-4 shadow-lg"&gt;
-    &lt;div className="max-w-7xl mx-auto flex items-center justify-between"&gt;
-      &lt;div className="flex items-center"&gt;
-        &lt;GiMagicSwirl size={36} className="mr-2 text-cyan-400" /&gt;
-        &lt;h1 className="text-3xl font-bold text-white"&gt;
-          MercurIA
-        &lt;/h1&gt;
-      &lt;/div&gt;
-      {/* Você pode adicionar um CTA no header aqui se desejar */}
-      {/* &lt;Link href="/page" passHref&gt;
-        &lt;button className="hidden sm:block px-5 py-2 bg-cyan-500 hover:bg-cyan-600 text-white font-semibold rounded-lg transition-colors"&gt;
-          Começar
-        &lt;/button&gt;
-      &lt;/Link&gt; */}
-    &lt;/div&gt;
-  &lt;/header&gt;
+    <main className="max-w-7xl mx-auto px-6 py-10 bg-gradient-to-br from-slate-100 to-white text-gray-900 min-h-screen">
+      <Card className="shadow-xl border border-gray-100 rounded-3xl backdrop-blur-md bg-white/90">
+        <CardContent>
+          <h1 className="text-4xl font-bold mb-8 text-center text-blue-700">🎯 Geração Inteligente de Apresentações</h1>
 
-  {/* Seção Hero */}
-  &lt;section className="py-24 md:py-32 max-w-7xl mx-auto px-4 sm:px-8 text-center"&gt;
-    &lt;div className="bg-black/50 backdrop-blur-md rounded-3xl p-8 sm:p-16 shadow-2xl shadow-cyan-700/30"&gt;
-      &lt;h2 className="text-4xl sm:text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 mb-6"&gt;
-        Apresentações Deslumbrantes, &lt;br className="hidden sm:block" /&gt;Criadas por IA em Segundos.
-      &lt;/h2&gt;
-      &lt;p className="text-lg sm:text-xl text-slate-300 max-w-3xl mx-auto mb-10"&gt;
-        Diga adeus ao design demorado. Com a MercurIA, você foca na sua mensagem e nossa inteligência artificial cuida de criar slides impactantes e profissionais.
-      &lt;/p&gt;
-      &lt;Link href="/page" passHref&gt;
-        &lt;button
-          className="px-10 py-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 font-semibold rounded-lg text-white text-lg shadow-lg transform transition-all duration-300 ease-in-out hover:shadow-xl hover-scale-lg"
-        &gt;
-          Criar Minha Apresentação Agora
-        &lt;/button&gt;
-      &lt;/Link&gt;
-    &lt;/div&gt;
-  &lt;/section&gt;
+          <section className="grid md:grid-cols-2 gap-8">
+            <div>
+              <h2 className="text-lg font-semibold mb-2">Conteúdo original:</h2>
+              <Textarea
+                placeholder="Cole seu conteúdo aqui..."
+                rows={10}
+                value={originalText}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setOriginalText(e.target.value)}
+                className="rounded-xl shadow-sm border border-gray-200 focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
 
-  {/* Seção Como Funciona */}
-  &lt;section className="py-16 sm:py-24 bg-black/20"&gt;
-    &lt;div className="max-w-7xl mx-auto px-4 sm:px-8"&gt;
-      &lt;h2 className="text-3xl sm:text-4xl font-bold text-center mb-4"&gt;Mágica em Poucos Cliques&lt;/h2&gt;
-      &lt;p className="text-xl text-slate-300 text-center mb-16 max-w-2xl mx-auto"&gt;Veja como é fácil transformar suas ideias em realidade com a MercurIA:&lt;/p&gt;
-      &lt;div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center"&gt;
-        &lt;div className="flex flex-col items-center p-6"&gt;
-          &lt;div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-4 rounded-full mb-4 inline-block"&gt;
-            &lt;AiOutlineBulb size={40} className="text-white" /&gt;
-          &lt;/div&gt;
-          &lt;h3 className="text-2xl font-semibold text-white mb-2"&gt;1. Descreva sua Ideia&lt;/h3&gt;
-          &lt;p className="text-slate-300"&gt;Forneça o tema, pontos chave ou um rascunho do seu conteúdo.&lt;/p&gt;
-        &lt;/div&gt;
-        &lt;div className="flex flex-col items-center p-6"&gt;
-          &lt;div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-4 rounded-full mb-4 inline-block"&gt;
-            &lt;FaPalette size={40} className="text-white" /&gt;
-          &lt;/div&gt;
-          &lt;h3 className="text-2xl font-semibold text-white mb-2"&gt;2. Personalize o Estilo&lt;/h3&gt;
-          &lt;p className="text-slate-300"&gt;Escolha cores, fontes e o tom que mais combinam com sua mensagem.&lt;/p&gt;
-        &lt;/div&gt;
-        &lt;div className="flex flex-col items-center p-6"&gt;
-          &lt;div className="bg-gradient-to-br from-cyan-500 to-blue-600 p-4 rounded-full mb-4 inline-block"&gt;
-            &lt;GiArtificialIntelligence size={40} className="text-white" /&gt;
-          &lt;/div&gt;
-          &lt;h3 className="text-2xl font-semibold text-white mb-2"&gt;3. A IA Entra em Ação&lt;/h3&gt;
-          &lt;p className="text-slate-300"&gt;Nossa inteligência cria uma apresentação completa e otimizada para você.&lt;/p&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/section&gt;
+            <div>
+              <h2 className="text-lg font-semibold mb-2">Conteúdo melhorado:</h2>
+              <Textarea
+                placeholder="O conteúdo melhorado aparecerá aqui..."
+                rows={10}
+                value={improvedText}
+                readOnly
+                className="rounded-xl bg-gray-50 border border-gray-200 shadow-inner"
+              />
+            </div>
+          </section>
 
-  {/* Seção de Benefícios */}
-  &lt;section className="py-16 sm:py-24"&gt;
-    &lt;div className="max-w-7xl mx-auto px-4 sm:px-8"&gt;
-      &lt;h2 className="text-3xl sm:text-4xl font-bold text-center mb-16"&gt;Vantagens que Fazem a Diferença&lt;/h2&gt;
-      &lt;div className="grid grid-cols-1 md:grid-cols-3 gap-8"&gt;
-        {/* Card 1 */}
-        &lt;div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl p-8 shadow-xl card-hover"&gt;
-          &lt;div className="flex items-center text-cyan-400 mb-5"&gt;
-            &lt;MdDesignServices size={40} /&gt;
-            &lt;h3 className="ml-4 text-2xl font-semibold text-white"&gt;Designs que Cativam&lt;/h3&gt;
-          &lt;/div&gt;
-          &lt;p className="text-slate-300 leading-relaxed"&gt;Crie apresentações com visuais modernos, elegantes e totalmente personalizáveis que prendem a atenção do seu público.&lt;/p&gt;
-        &lt;/div&gt;
-        {/* Card 2 */}
-        &lt;div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl p-8 shadow-xl card-hover"&gt;
-          &lt;div className="flex items-center text-cyan-400 mb-5"&gt;
-            &lt;GiArtificialIntelligence size={40} className="animate-pulse-icon" /&gt;
-            &lt;h3 className="ml-4 text-2xl font-semibold text-white"&gt;Inteligência ao Seu Dispor&lt;/h3&gt;
-          &lt;/div&gt;
-          &lt;p className="text-slate-300 leading-relaxed"&gt;Nossa IA não apenas monta slides, mas sugere layouts, otimiza seu conteúdo e simplifica todo o processo criativo.&lt;/p&gt;
-        &lt;/div&gt;
-        {/* Card 3 */}
-        &lt;div className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-2xl p-8 shadow-xl card-hover"&gt;
-          &lt;div className="flex items-center text-cyan-400 mb-5"&gt;
-            &lt;AiOutlineRocket size={40} /&gt;
-            &lt;h3 className="ml-4 text-2xl font-semibold text-white"&gt;Criação Rápida e Intuitiva&lt;/h3&gt;
-          &lt;/div&gt;
-          &lt;p className="text-slate-300 leading-relaxed"&gt;Plataforma otimizada para máxima velocidade e usabilidade. Crie e edite suas apresentações com fluidez, sem complicações.&lt;/p&gt;
-        &lt;/div&gt;
-      &lt;/div&gt;
-    &lt;/div&gt;
-  &lt;/section&gt;
+          <div className="grid md:grid-cols-2 gap-8 mt-8">
+            <div>
+              <label className="block text-sm font-medium mb-1">Tom de voz desejado:</label>
+              <select
+                className="rounded-xl border border-gray-300 px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-blue-400"
+                value={selectedTone}
+                onChange={(e) => setSelectedTone(e.target.value)}
+              >
+                {toneOptions.map(({ label, description }) => (
+                  <option key={label} value={label}>
+                    {label} – {description}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-  {/* Seção de Chamada para Ação Final */}
-  &lt;section className="py-20 sm:py-28"&gt;
-    &lt;div className="max-w-4xl mx-auto px-4 sm:px-8 text-center"&gt;
-      &lt;GiMagicSwirl size={60} className="mx-auto mb-6 text-cyan-400 animate-pulse-icon" /&gt;
-      &lt;h2 className="text-3xl sm:text-4xl font-bold text-white mb-6"&gt;Pronto para Revolucionar Suas Apresentações?&lt;/h2&gt;
-      &lt;p className="text-lg sm:text-xl text-slate-300 mb-10"&gt;
-        Junte-se a milhares de usuários que já estão criando apresentações incríveis com a MercurIA.
-        Experimente agora e veja a diferença!
-      &lt;/p&gt;
-      &lt;Link href="/page" passHref&gt;
-        &lt;button
-          className="px-12 py-5 bg-gradient-to-r from-pink-600 to-purple-700 hover:from-pink-500 hover:to-purple-600 font-bold rounded-lg text-white text-xl shadow-lg transform transition-all duration-300 ease-in-out hover:shadow-2xl hover-scale-lg"
-        &gt;
-          Começar Gratuitamente
-        &lt;/button&gt;
-      &lt;/Link&gt;
-      &lt;p className="text-sm text-slate-400 mt-4"&gt;(Ou explore nossos planos)&lt;/p&gt; {/* Opcional */}
-    &lt;/div&gt;
-  &lt;/section&gt;
+            <div>
+              <label className="block text-sm font-medium mb-1">Formato da apresentação:</label>
+              <select
+                className="rounded-xl border border-gray-300 px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-blue-400"
+                value={selectedFormat}
+                onChange={(e) => setSelectedFormat(e.target.value)}
+              >
+                {formatOptions.map(({ label, description }) => (
+                  <option key={label} value={label}>
+                    {label} – {description}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
 
-  {/* Rodapé */}
-  &lt;footer className="bg-black/50 py-10 mt-12 border-t border-slate-700"&gt;
-    &lt;div className="max-w-7xl mx-auto px-4 sm:px-8 text-center text-slate-400"&gt;
-      &lt;p className="mb-2"&gt;&copy; {new Date().getFullYear()} MercurIA. Todos os direitos reservados.&lt;/p&gt;
-      &lt;p className="text-sm"&gt;
-        &lt;Link href="/termos" className="hover:text-cyan-400 transition-colors"&gt;Termos de Serviço&lt;/Link&gt; | &lt;Link href="/privacidade" className="hover:text-cyan-400 transition-colors"&gt;Política de Privacidade&lt;/Link&gt;
-      &lt;/p&gt;
-    &lt;/div&gt;
-  &lt;/footer&gt;
-&lt;/div&gt;
+          <div className="mt-6 flex flex-wrap items-center gap-4">
+            <label htmlFor="slides" className="font-medium">Qtd de slides:</label>
+            <Input
+              id="slides"
+              type="number"
+              min={1}
+              max={20}
+              value={slideCount}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setSlideCount(Number(e.target.value))}
+              className="w-24 rounded-xl"
+            />
+            <Button className="rounded-full bg-blue-600 hover:bg-blue-700 transition-all px-6 py-2 text-white font-semibold shadow-md" onClick={handleRewrite}>
+              ✨ Melhorar Conteúdo com IA
+            </Button>
+            <Button className="rounded-full bg-green-600 hover:bg-green-700 transition-all px-6 py-2 text-white font-semibold shadow-md" onClick={handleExport}>
+              📊 Exportar para PPTX
+            </Button>
+          </div>
 
-);
+          {message && (
+            <div className="mt-6 text-sm text-blue-800 bg-blue-100 border border-blue-300 p-3 rounded-lg shadow-sm">
+              {message}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </main>
+  );
 }
