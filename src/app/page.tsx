@@ -1,6 +1,5 @@
 "use client";
-
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,33 +23,40 @@ const formatOptions = [
   { label: "Blocos de texto", description: "Texto estruturado em parágrafos completos." }
 ];
 
+const templateOptions = [
+  { value: "classic", label: "Clássico – Estrutura tradicional e legível" },
+  { value: "modern", label: "Moderno – Visual limpo e contemporâneo" },
+  { value: "dark", label: "Escuro – Estilo noturno com alto contraste" },
+  { value: "minimal", label: "Minimalista – Foco no conteúdo, com design enxuto" },
+  { value: "colorful", label: "Colorido – Visual vibrante e expressivo" },
+  { value: "corporate", label: "Corporativo – Elegante e institucional" },
+  { value: "gradient", label: "Gradiente – Fundos com transições suaves de cor" },
+  { value: "illustrated", label: "Ilustrado – Com suporte a imagens baseadas no conteúdo gerado" }
+];
+
 export default function Page() {
   const [originalText, setOriginalText] = useState("");
   const [improvedText, setImprovedText] = useState("");
   const [slideCount, setSlideCount] = useState(3);
   const [selectedTone, setSelectedTone] = useState("Profissional");
   const [selectedFormat, setSelectedFormat] = useState("Bullet points");
+  const [selectedTemplate, setSelectedTemplate] = useState("classic");
   const [message, setMessage] = useState("");
+  const draftRef = useRef<HTMLTextAreaElement>(null);
+  const [activeSlide, setActiveSlide] = useState(0);
 
   const rewriteContent = async (text: string): Promise<string> => {
     try {
       const res = await fetch("/api/rewrite", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           text,
           tone: selectedTone,
           format: selectedFormat,
           slides: slideCount,
-          model: "gpt-4-turbo",
-          persona: `Você é um revisor e estruturador de conteúdo com ampla experiência em transformar textos e informações em apresentações de PowerPoint altamente profissionais, claras, didáticas e visualmente organizadas. Seu objetivo é revisar o conteúdo recebido, extrair os pontos mais relevantes e estruturá-los de forma lógica, pedagógica e impactante, sempre considerando princípios de design instrucional que promovem compreensão, retenção e engajamento.
-
-Você aplica técnicas de hierarquização da informação, chunking (quebra de conteúdo em blocos digestíveis), uso estratégico de recursos visuais e definição clara de objetivos de aprendizagem, quando aplicável. Sua comunicação visual é planejada para facilitar o aprendizado, respeitar o perfil do público-alvo (executivo, técnico, comercial ou acadêmico) e reforçar as mensagens centrais de forma acessível e eficaz.
-
-Você adapta o tom, o ritmo e a linguagem da apresentação com base na intenção do usuário, seja para ensinar, convencer ou informar, e sempre garante que o conteúdo seja visualmente limpo, conciso e com narrativa fluida. Sua abordagem é detalhista e busca explorar os conceitos com profundidade, contextualizando, explicando e enriquecendo cada ponto com exemplos e desdobramentos práticos.`
-        }),
+          model: "gpt-4-turbo"
+        })
       });
       if (!res.ok) throw new Error("Erro na requisição");
       const data = await res.json();
@@ -59,6 +65,21 @@ Você adapta o tom, o ritmo e a linguagem da apresentação com base na intenç�
       console.error("Erro ao reescrever texto:", error);
       setMessage("❌ Erro ao processar o conteúdo com IA.");
       return text;
+    }
+  };
+
+  const generateImages = async (texts: string[]) => {
+    try {
+      const res = await fetch("/api/generate-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompts: texts })
+      });
+      const data = await res.json();
+      return data.imageUrls;
+    } catch (err) {
+      console.error("Erro ao gerar imagens:", err);
+      return Array(texts.length).fill(null);
     }
   };
 
@@ -79,98 +100,120 @@ Você adapta o tom, o ritmo e a linguagem da apresentação com base na intenç�
     }
     const blocks = improvedText.split(/\n{2,}/).slice(0, slideCount);
     const titles = blocks.map((_, i) => `Slide ${i + 1}`);
-    await exportPPTX(blocks, titles);
+    const images = selectedTemplate === "illustrated" ? await generateImages(blocks) : [];
+    await exportPPTX(blocks, titles, selectedTemplate, images);
     setMessage("📥 Apresentação exportada com sucesso!");
   };
 
+  const scrollToSlide = (index: number) => {
+    if (draftRef.current) {
+      const lines = improvedText.split("\n");
+      const slideText = improvedText.split(/\n{2,}/)[index];
+      const startLine = lines.findIndex((line) => slideText.startsWith(line));
+      const position = lines.slice(0, startLine).join("\n").length;
+      draftRef.current.focus();
+      draftRef.current.setSelectionRange(position, position);
+      setActiveSlide(index);
+    }
+  };
+
+  const slides = improvedText.split(/\n{2,}/);
+
   return (
-    <main className="max-w-7xl mx-auto px-4 py-10 bg-gradient-to-br from-slate-100 to-white text-gray-900 min-h-screen">
-      <div className="rounded-3xl shadow-2xl p-8 bg-white/80 backdrop-blur-md border border-gray-200">
-        <h1 className="text-4xl font-bold mb-10 text-center text-blue-700">🎯 Geração Inteligente de Apresentações</h1>
-
-        <div className="grid md:grid-cols-2 gap-10">
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Conteúdo original:</h2>
-            <Textarea
-              placeholder="Cole seu conteúdo aqui..."
-              rows={10}
-              value={originalText}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setOriginalText(e.target.value)}
-              className="rounded-xl shadow-sm border border-gray-300 focus:ring-2 focus:ring-blue-500"
-            />
+    <main className="max-w-7xl mx-auto px-6 py-12 bg-gradient-to-br from-slate-100 to-white text-gray-900 min-h-screen">
+      <div className="grid md:grid-cols-2 gap-8">
+        <section className="space-y-6">
+          <h1 className="text-4xl font-bold text-blue-700">🎯 Geração Inteligente de Apresentações</h1>
+          <Textarea
+            placeholder="Cole seu conteúdo aqui..."
+            rows={8}
+            value={originalText}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setOriginalText(e.target.value)}
+            className="rounded-xl shadow-sm border border-gray-300 focus:ring-2 focus:ring-blue-500"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">Tom de voz:</label>
+              <select
+                className="w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-blue-400"
+                value={selectedTone}
+                onChange={(e) => setSelectedTone(e.target.value)}
+              >
+                {toneOptions.map(({ label }) => (
+                  <option key={label} value={label}>{label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium">Formato:</label>
+              <select
+                className="w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-blue-400"
+                value={selectedFormat}
+                onChange={(e) => setSelectedFormat(e.target.value)}
+              >
+                {formatOptions.map(({ label }) => (
+                  <option key={label} value={label}>{label}</option>
+                ))}
+              </select>
+            </div>
           </div>
-
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Conteúdo melhorado:</h2>
-            <Textarea
-              placeholder="O conteúdo melhorado aparecerá aqui..."
-              rows={10}
-              value={improvedText}
-              readOnly
-              className="rounded-xl bg-gray-50 border border-gray-200 shadow-inner"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium">Qtd de slides:</label>
+              <Input
+                type="number"
+                min={1}
+                max={20}
+                value={slideCount}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setSlideCount(Number(e.target.value))}
+                className="rounded-xl w-full"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium">Template visual:</label>
+              <select
+                className="w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-blue-400"
+                value={selectedTemplate}
+                onChange={(e) => setSelectedTemplate(e.target.value)}
+              >
+                {templateOptions.map(({ value, label }) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </div>
           </div>
-        </div>
-
-        <div className="grid md:grid-cols-3 gap-8 mt-10">
-          <div>
-            <label className="block text-sm font-medium mb-1">Tom de voz desejado:</label>
-            <select
-              className="rounded-xl border border-gray-300 px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-blue-400"
-              value={selectedTone}
-              onChange={(e) => setSelectedTone(e.target.value)}
-            >
-              {toneOptions.map(({ label, description }) => (
-                <option key={label} value={label}>
-                  {label} – {description}
-                </option>
-              ))}
-            </select>
+          <div className="flex flex-wrap gap-4">
+            <Button onClick={handleRewrite} className="rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 shadow-md">
+              ✨ Melhorar com IA
+            </Button>
+            <Button onClick={handleExport} className="rounded-full bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 shadow-md">
+              📊 Exportar PPTX
+            </Button>
           </div>
+          {message && <p className="text-blue-800 bg-blue-100 border border-blue-300 p-3 rounded-lg shadow-sm">{message}</p>}
+        </section>
 
-          <div>
-            <label className="block text-sm font-medium mb-1">Formato da apresentação:</label>
-            <select
-              className="rounded-xl border border-gray-300 px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-blue-400"
-              value={selectedFormat}
-              onChange={(e) => setSelectedFormat(e.target.value)}
-            >
-              {formatOptions.map(({ label, description }) => (
-                <option key={label} value={label}>
-                  {label} – {description}
-                </option>
-              ))}
-            </select>
+        <section>
+          <h2 className="text-xl font-semibold mb-2">Pré-visualização do conteúdo:</h2>
+          <div className="flex gap-2 mb-3 overflow-x-auto">
+            {slides.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => scrollToSlide(idx)}
+                className={`min-w-[80px] text-sm px-3 py-1 rounded-full border ${activeSlide === idx ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300"}`}
+              >
+                Slide {idx + 1}
+              </button>
+            ))}
           </div>
-
-          <div>
-            <label htmlFor="slides" className="block text-sm font-medium mb-1">Qtd de slides:</label>
-            <Input
-              id="slides"
-              type="number"
-              min={1}
-              max={20}
-              value={slideCount}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setSlideCount(Number(e.target.value))}
-              className="rounded-xl w-full"
-            />
-          </div>
-        </div>
-
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Button className="rounded-full bg-blue-600 hover:bg-blue-700 transition-all px-6 py-2 text-white font-semibold shadow-md" onClick={handleRewrite}>
-            ✨ Melhorar Conteúdo com IA
-          </Button>
-          <Button className="rounded-full bg-green-600 hover:bg-green-700 transition-all px-6 py-2 text-white font-semibold shadow-md" onClick={handleExport}>
-            📊 Exportar para PPTX
-          </Button>
-        </div>
-
-        {message && (
-          <div className="mt-6 text-sm text-blue-800 bg-blue-100 border border-blue-300 p-3 rounded-lg shadow-sm text-center">
-            {message}
-          </div>
-        )}
+          <Textarea
+            ref={draftRef}
+            value={improvedText}
+            onChange={(e) => setImprovedText(e.target.value)}
+            rows={18}
+            className="rounded-xl bg-gray-50 border border-gray-200 shadow-inner w-full h-full"
+          />
+        </section>
       </div>
     </main>
   );
