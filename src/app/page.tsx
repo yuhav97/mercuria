@@ -43,7 +43,6 @@ export default function Page() {
   const [selectedTemplate, setSelectedTemplate] = useState("classic");
   const [message, setMessage] = useState("");
   const draftRef = useRef<HTMLTextAreaElement>(null);
-  const [activeSlide, setActiveSlide] = useState(0);
 
   const rewriteContent = async (text: string): Promise<string> => {
     try {
@@ -104,20 +103,6 @@ export default function Page() {
     await exportPPTX(blocks, titles, selectedTemplate, images);
     setMessage("📥 Apresentação exportada com sucesso!");
   };
-
-  const scrollToSlide = (index: number) => {
-    if (draftRef.current) {
-      const lines = improvedText.split("\n");
-      const slideText = improvedText.split(/\n{2,}/)[index];
-      const startLine = lines.findIndex((line) => slideText.startsWith(line));
-      const position = lines.slice(0, startLine).join("\n").length;
-      draftRef.current.focus();
-      draftRef.current.setSelectionRange(position, position);
-      setActiveSlide(index);
-    }
-  };
-
-  const slides = improvedText.split(/\n{2,}/);
 
   return (
     <main className="max-w-7xl mx-auto px-6 py-12 bg-gradient-to-br from-slate-100 to-white text-gray-900 min-h-screen">
@@ -195,17 +180,6 @@ export default function Page() {
 
         <section>
           <h2 className="text-xl font-semibold mb-2">Pré-visualização do conteúdo:</h2>
-          <div className="flex gap-2 mb-3 overflow-x-auto">
-            {slides.map((_, idx) => (
-              <button
-                key={idx}
-                onClick={() => scrollToSlide(idx)}
-                className={`min-w-[80px] text-sm px-3 py-1 rounded-full border ${activeSlide === idx ? "bg-blue-600 text-white border-blue-600" : "bg-white text-gray-700 border-gray-300"}`}
-              >
-                Slide {idx + 1}
-              </button>
-            ))}
-          </div>
           <Textarea
             ref={draftRef}
             value={improvedText}
