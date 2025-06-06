@@ -1,200 +1,73 @@
 import PptxGenJS from "pptxgenjs";
 
-export async function exportPPTX(slideTexts: string[], slideTitles: string[], template: string = "classic"): Promise<void> {
+export async function exportPPTX(
+  slideTexts: string[],
+  slideTitles: string[],
+  template = "classic",
+  images: string[] = []
+) {
   const pptx = new PptxGenJS();
 
-  const templates = {
+  const templates: Record<string, any> = {
     classic: {
-      title: {
-        x: 0.5,
-        y: 0.3,
-        w: "90%",
-        h: 1,
-        fontSize: 20,
-        bold: true,
-        color: "003366",
-        fontFace: "Arial",
-      },
-      content: {
-        x: 0.5,
-        y: 1,
-        w: "90%",
-        h: "70%",
-        fontSize: 16,
-        color: "363636",
-        wrap: true,
-        valign: "top",
-        fontFace: "Calibri",
-        lineSpacingMultiple: 1.2,
-      },
       backgroundColor: "FFFFFF",
+      title: { x: 0.5, y: 0.3, fontSize: 24, bold: true, color: "000000" },
+      content: { x: 0.5, y: 1.2, fontSize: 16, color: "333333", wrap: true, w: 8.5, h: 4.5 },
     },
     modern: {
-      title: {
-        x: 0.5,
-        y: 0.5,
-        w: "80%",
-        h: 1,
-        fontSize: 24,
-        bold: true,
-        color: "2E86DE",
-        align: "center",
-        fontFace: "Helvetica Neue",
-      },
-      content: {
-        x: 0.5,
-        y: 1.5,
-        w: "80%",
-        h: "60%",
-        fontSize: 18,
-        color: "1C1C1C",
-        wrap: true,
-        valign: "top",
-        align: "left",
-        fontFace: "Segoe UI",
-        lineSpacingMultiple: 1.3,
-      },
-      backgroundColor: "F2F4F8",
+      backgroundColor: "F4F4F5",
+      title: { x: 0.5, y: 0.4, fontSize: 26, bold: true, color: "1F2937" },
+      content: { x: 0.5, y: 1.4, fontSize: 18, color: "4B5563", wrap: true, w: 8.5, h: 4.5 },
     },
     dark: {
-      title: {
-        x: 0.5,
-        y: 0.3,
-        w: "90%",
-        h: 1,
-        fontSize: 20,
-        bold: true,
-        color: "FFFFFF",
-        fontFace: "Verdana",
-      },
-      content: {
-        x: 0.5,
-        y: 1,
-        w: "90%",
-        h: "70%",
-        fontSize: 16,
-        color: "EEEEEE",
-        wrap: true,
-        valign: "top",
-        fontFace: "Verdana",
-        lineSpacingMultiple: 1.2,
-      },
-      backgroundColor: "1E1E1E",
+      backgroundColor: "1F2937",
+      title: { x: 0.5, y: 0.4, fontSize: 24, bold: true, color: "F9FAFB" },
+      content: { x: 0.5, y: 1.4, fontSize: 16, color: "E5E7EB", wrap: true, w: 8.5, h: 4.5 },
     },
     minimal: {
-      title: {
-        x: 0.6,
-        y: 0.4,
-        w: "80%",
-        h: 0.8,
-        fontSize: 22,
-        bold: true,
-        color: "000000",
-        align: "left",
-        fontFace: "Arial Narrow",
-      },
-      content: {
-        x: 0.6,
-        y: 1.3,
-        w: "80%",
-        h: "65%",
-        fontSize: 15,
-        color: "333333",
-        wrap: true,
-        valign: "top",
-        align: "left",
-        fontFace: "Arial Narrow",
-        lineSpacingMultiple: 1.15,
-      },
       backgroundColor: "FFFFFF",
+      title: { x: 0.7, y: 0.5, fontSize: 22, bold: true, color: "000000" },
+      content: { x: 0.7, y: 1.5, fontSize: 15, color: "444444", wrap: true, w: 8, h: 4 },
     },
     colorful: {
-      title: {
-        x: 0.5,
-        y: 0.4,
-        w: "80%",
-        h: 1,
-        fontSize: 26,
-        bold: true,
-        color: "FFFFFF",
-        align: "center",
-        fontFace: "Comic Sans MS",
-        underline: true,
-      },
-      content: {
-        x: 0.5,
-        y: 1.6,
-        w: "80%",
-        h: "60%",
-        fontSize: 17,
-        color: "FFFFFF",
-        wrap: true,
-        valign: "top",
-        align: "left",
-        fontFace: "Comic Sans MS",
-        lineSpacingMultiple: 1.25,
-      },
-      backgroundColor: "5A189A",
+      backgroundColor: "E0F2FE",
+      title: { x: 0.5, y: 0.5, fontSize: 26, bold: true, color: "0284C7" },
+      content: { x: 0.5, y: 1.5, fontSize: 16, color: "075985", wrap: true, w: 8.5, h: 4.5 },
     },
     corporate: {
-      title: {
-        x: 0.5,
-        y: 0.3,
-        w: "85%",
-        h: 1,
-        fontSize: 22,
-        bold: true,
-        color: "1A1A1A",
-        fontFace: "Calibri Light",
-      },
-      content: {
-        x: 0.5,
-        y: 1.2,
-        w: "85%",
-        h: "65%",
-        fontSize: 16,
-        color: "444444",
-        wrap: true,
-        valign: "top",
-        fontFace: "Calibri",
-        lineSpacingMultiple: 1.2,
-      },
-      backgroundColor: "FAFAFA",
+      backgroundColor: "F8FAFC",
+      title: { x: 0.5, y: 0.4, fontSize: 24, bold: true, color: "0F172A" },
+      content: { x: 0.5, y: 1.3, fontSize: 17, color: "1E293B", wrap: true, w: 8.5, h: 4.5 },
+    },
+    gradient: {
+      backgroundColor: "FFFFFF", // pptxgenjs não suporta gradientes diretamente
+      title: { x: 0.5, y: 0.5, fontSize: 25, bold: true, color: "6D28D9" },
+      content: { x: 0.5, y: 1.6, fontSize: 17, color: "5B21B6", wrap: true, w: 8.5, h: 4.5 },
+    },
+    illustrated: {
+      backgroundColor: "FFFFFF",
+      title: { x: 0.5, y: 0.3, fontSize: 24, bold: true, color: "111827" },
+      content: { x: 0.5, y: 1, fontSize: 16, color: "374151", wrap: true, w: 8.5, h: 3 },
+      image: { x: 0.5, y: 4.5, w: 6, h: 3.5 },
     },
   };
 
   const selected = templates[template] || templates["classic"];
 
-  for (let i = 0; i < slideTexts.length; i++) {
+  slideTexts.forEach((text, index) => {
     const slide = pptx.addSlide();
-    const text = slideTexts[i];
-    const title = slideTitles[i] || `Slide ${i + 1}`;
 
     if (selected.backgroundColor) {
       slide.background = { fill: selected.backgroundColor };
     }
 
-    slide.addText(title, selected.title);
+    slide.addText(slideTitles[index] || `Slide ${index + 1}`, selected.title);
     slide.addText(text, selected.content);
 
-    try {
-      const imagePrompt = encodeURIComponent(text.slice(0, 100));
-      const dalleResponse = await fetch("/api/generate-image", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: imagePrompt })
-      });
-
-      if (dalleResponse.ok) {
-        const { base64Image } = await dalleResponse.json();
-        slide.addImage({ data: base64Image, x: 6.5, y: 0.3, w: 2, h: 2 });
-      } else {
-        console.warn(`❌ Falha ao gerar imagem para slide ${i + 1}`);
-      }
-    } catch (err) {
-      console.warn(`⚠️ Erro ao adicionar imagem ao slide ${i + 1}:`, err);
+    if (images[index] && selected.image) {
+      slide.addImage({ ...selected.image, path: images[index] });
     }
-  }
+  });
 
-  await pptx.writeFile({ fileName: "mercurIA_apresenta.pptx" });
+  await pptx.writeFile({ fileName: "ApresentacaoIA.pptx" });
 }
