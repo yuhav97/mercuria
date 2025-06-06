@@ -8,7 +8,14 @@ export async function exportPPTX(
 ) {
   const pptx = new PptxGenJS();
 
-  const templates: Record<string, any> = {
+  type SlideTemplate = {
+    backgroundColor: string;
+    title: PptxGenJS.TextPropsOptions;
+    content: PptxGenJS.TextPropsOptions;
+    image?: PptxGenJS.ImagePropsOptions;
+  };
+
+  const templates: Record<string, SlideTemplate> = {
     classic: {
       backgroundColor: "FFFFFF",
       title: { x: 0.5, y: 0.3, fontSize: 24, bold: true, color: "000000" },
