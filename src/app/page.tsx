@@ -85,69 +85,67 @@ Você adapta o tom, o ritmo e a linguagem da apresentação com base na intenç�
   };
 
   return (
-    <main className="max-w-7xl mx-auto px-6 py-10 bg-gradient-to-br from-slate-100 to-white text-gray-900 min-h-screen">
-      <Card className="shadow-xl border border-gray-100 rounded-3xl backdrop-blur-md bg-white/90">
-        <CardContent>
-          <h1 className="text-4xl font-bold mb-8 text-center text-blue-700">🎯 Geração Inteligente de Apresentações</h1>
+    <main className="max-w-7xl mx-auto px-4 py-10 bg-gradient-to-br from-slate-100 to-white text-gray-900 min-h-screen">
+      <div className="rounded-3xl shadow-2xl p-8 bg-white/80 backdrop-blur-md border border-gray-200">
+        <h1 className="text-4xl font-bold mb-10 text-center text-blue-700">🎯 Geração Inteligente de Apresentações</h1>
 
-          <section className="grid md:grid-cols-2 gap-8">
-            <div>
-              <h2 className="text-lg font-semibold mb-2">Conteúdo original:</h2>
-              <Textarea
-                placeholder="Cole seu conteúdo aqui..."
-                rows={10}
-                value={originalText}
-                onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setOriginalText(e.target.value)}
-                className="rounded-xl shadow-sm border border-gray-200 focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-
-            <div>
-              <h2 className="text-lg font-semibold mb-2">Conteúdo melhorado:</h2>
-              <Textarea
-                placeholder="O conteúdo melhorado aparecerá aqui..."
-                rows={10}
-                value={improvedText}
-                readOnly
-                className="rounded-xl bg-gray-50 border border-gray-200 shadow-inner"
-              />
-            </div>
-          </section>
-
-          <div className="grid md:grid-cols-2 gap-8 mt-8">
-            <div>
-              <label className="block text-sm font-medium mb-1">Tom de voz desejado:</label>
-              <select
-                className="rounded-xl border border-gray-300 px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-blue-400"
-                value={selectedTone}
-                onChange={(e) => setSelectedTone(e.target.value)}
-              >
-                {toneOptions.map(({ label, description }) => (
-                  <option key={label} value={label}>
-                    {label} – {description}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium mb-1">Formato da apresentação:</label>
-              <select
-                className="rounded-xl border border-gray-300 px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-blue-400"
-                value={selectedFormat}
-                onChange={(e) => setSelectedFormat(e.target.value)}
-              >
-                {formatOptions.map(({ label, description }) => (
-                  <option key={label} value={label}>
-                    {label} – {description}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div className="grid md:grid-cols-2 gap-10">
+          <div>
+            <h2 className="text-lg font-semibold mb-2">Conteúdo original:</h2>
+            <Textarea
+              placeholder="Cole seu conteúdo aqui..."
+              rows={10}
+              value={originalText}
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setOriginalText(e.target.value)}
+              className="rounded-xl shadow-sm border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            />
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-4">
-            <label htmlFor="slides" className="font-medium">Qtd de slides:</label>
+          <div>
+            <h2 className="text-lg font-semibold mb-2">Conteúdo melhorado:</h2>
+            <Textarea
+              placeholder="O conteúdo melhorado aparecerá aqui..."
+              rows={10}
+              value={improvedText}
+              readOnly
+              className="rounded-xl bg-gray-50 border border-gray-200 shadow-inner"
+            />
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-8 mt-10">
+          <div>
+            <label className="block text-sm font-medium mb-1">Tom de voz desejado:</label>
+            <select
+              className="rounded-xl border border-gray-300 px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-blue-400"
+              value={selectedTone}
+              onChange={(e) => setSelectedTone(e.target.value)}
+            >
+              {toneOptions.map(({ label, description }) => (
+                <option key={label} value={label}>
+                  {label} – {description}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-1">Formato da apresentação:</label>
+            <select
+              className="rounded-xl border border-gray-300 px-3 py-2 w-full shadow-sm focus:ring-2 focus:ring-blue-400"
+              value={selectedFormat}
+              onChange={(e) => setSelectedFormat(e.target.value)}
+            >
+              {formatOptions.map(({ label, description }) => (
+                <option key={label} value={label}>
+                  {label} – {description}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label htmlFor="slides" className="block text-sm font-medium mb-1">Qtd de slides:</label>
             <Input
               id="slides"
               type="number"
@@ -155,23 +153,26 @@ Você adapta o tom, o ritmo e a linguagem da apresentação com base na intenç�
               max={20}
               value={slideCount}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setSlideCount(Number(e.target.value))}
-              className="w-24 rounded-xl"
+              className="rounded-xl w-full"
             />
-            <Button className="rounded-full bg-blue-600 hover:bg-blue-700 transition-all px-6 py-2 text-white font-semibold shadow-md" onClick={handleRewrite}>
-              ✨ Melhorar Conteúdo com IA
-            </Button>
-            <Button className="rounded-full bg-green-600 hover:bg-green-700 transition-all px-6 py-2 text-white font-semibold shadow-md" onClick={handleExport}>
-              📊 Exportar para PPTX
-            </Button>
           </div>
+        </div>
 
-          {message && (
-            <div className="mt-6 text-sm text-blue-800 bg-blue-100 border border-blue-300 p-3 rounded-lg shadow-sm">
-              {message}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <Button className="rounded-full bg-blue-600 hover:bg-blue-700 transition-all px-6 py-2 text-white font-semibold shadow-md" onClick={handleRewrite}>
+            ✨ Melhorar Conteúdo com IA
+          </Button>
+          <Button className="rounded-full bg-green-600 hover:bg-green-700 transition-all px-6 py-2 text-white font-semibold shadow-md" onClick={handleExport}>
+            📊 Exportar para PPTX
+          </Button>
+        </div>
+
+        {message && (
+          <div className="mt-6 text-sm text-blue-800 bg-blue-100 border border-blue-300 p-3 rounded-lg shadow-sm text-center">
+            {message}
+          </div>
+        )}
+      </div>
     </main>
   );
 }
