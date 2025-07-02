@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { exportPPTX } from "./utils/exportPptx";
 
-const toneOptions = [
+const voiceTones = [
   { label: "Profissional", description: "Objetivo, direto e com linguagem formal." },
   { label: "Didático", description: "Explicativo, com foco em facilitar o aprendizado." },
   { label: "Técnico", description: "Preciso, com uso de terminologia específica da área." },
@@ -18,12 +18,12 @@ const toneOptions = [
   { label: "Descontraído", description: "Informal, leve, como uma conversa entre amigos." }
 ];
 
-const formatOptions = [
+const contentFormats = [
   { label: "Bullet points", description: "Resumo conciso com marcadores e tópicos curtos." },
   { label: "Blocos de texto", description: "Texto estruturado em parágrafos completos." }
 ];
 
-const templateOptions = [
+const visualTemplates = [
   { value: "classic", label: "Clássico – Estrutura tradicional e legível" },
   { value: "modern", label: "Moderno – Visual limpo e contemporâneo" },
   { value: "dark", label: "Escuro – Estilo noturno com alto contraste" },
@@ -34,105 +34,140 @@ const templateOptions = [
   { value: "illustrated", label: "Ilustrado – Com suporte a imagens baseadas no conteúdo gerado" }
 ];
 
-export default function Page() {
-  const [originalText, setOriginalText] = useState("");
-  const [improvedText, setImprovedText] = useState("");
-  const [slideCount, setSlideCount] = useState(3);
-  const [selectedTone, setSelectedTone] = useState("Profissional");
-  const [selectedFormat, setSelectedFormat] = useState("Bullet points");
-  const [selectedTemplate, setSelectedTemplate] = useState("classic");
-  const [message, setMessage] = useState("");
-  const [spellCheckResults, setSpellCheckResults] = useState<{corrections: Array<{original: string, corrected: string}>, hasChanges: boolean} | null>(null);
-  const draftRef = useRef<HTMLTextAreaElement>(null);
+export default function PresentationGenerator() {
+  const [inputText, setInputText] = useState("");
+  const [enhancedText, setEnhancedText] = useState("");
+  const [numberOfSlides, setNumberOfSlides] = useState(3);
+  const [chosenTone, setChosenTone] = useState("Profissional");
+  const [chosenFormat, setChosenFormat] = useState("Bullet points");
+  const [chosenTemplate, setChosenTemplate] = useState("classic");
+  const [statusMessage, setStatusMessage] = useState("");
+  const [spellingResults, setSpellingResults] = useState<{corrections: Array<{original: string, corrected: string}>, hasChanges: boolean} | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const previewRef = useRef<HTMLTextAreaElement>(null);
 
-  const checkSpelling = async () => {
-    if (!originalText.trim()) {
-      setMessage("⚠️ O conteúdo está vazio.");
+  const performSpellCheck = async () => {
+    if (!inputText.trim()) {
+      setStatusMessage("⚠️ O conteúdo está vazio.");
       return;
     }
     
+    setIsProcessing(true);
+    setStatusMessage("🔍 Verificando ortografia...");
+    
     try {
-      const res = await fetch("/api/spell-check", {
+      const response = await fetch("/api/spell-check", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: originalText })
+        body: JSON.stringify({ text: inputText })
       });
       
-      if (!res.ok) throw new Error("Erro na requisição");
-      const data = await res.json();
+      if (!response.ok) {
+        throw new Error(`Erro HTTP: ${response.status}`);
+      }
       
-      if (data.hasChanges) {
-        setOriginalText(data.correctedText);
-        setSpellCheckResults(data);
-        setMessage(`✅ Ortografia corrigida! ${data.corrections.length} correções feitas.`);
+      const result = await response.json();
+      
+      if (result.hasChanges) {
+        setInputText(result.correctedText);
+        setSpellingResults(result);
+        setStatusMessage(`✅ Ortografia corrigida! ${result.corrections.length} correções feitas.`);
       } else {
-        setMessage("✅ Nenhum erro ortográfico encontrado!");
-        setSpellCheckResults(null);
+        setStatusMessage("✅ Nenhum erro ortográfico encontrado!");
+        setSpellingResults(null);
       }
     } catch (error) {
       console.error("Erro na correção ortográfica:", error);
-      setMessage("❌ Erro ao corrigir ortografia.");
+      setStatusMessage("❌ Erro ao corrigir ortografia. Tente novamente.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const rewriteContent = async (text: string): Promise<string> => {
+  const enhanceContentWithAI = async () => {
+    if (!inputText.trim()) {
+      setStatusMessage("⚠️ O conteúdo está vazio.");
+      return;
+    }
+    
+    setIsProcessing(true);
+    setStatusMessage("🤖 Melhorando conteúdo com IA...");
+    
     try {
-      const res = await fetch("/api/rewrite", {
+      const response = await fetch("/api/rewrite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          text,
-          tone: selectedTone,
-          format: selectedFormat,
-          slides: slideCount,
-          model: "gpt-4-turbo"
+          text: inputText,
+          tone: chosenTone,
+          format: chosenFormat,
+          slides: numberOfSlides
         })
       });
-      if (!res.ok) throw new Error("Erro na requisição");
-      const data = await res.json();
-      return data.rewrittenText;
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Erro HTTP: ${response.status}`);
+      }
+      
+      const result = await response.json();
+      setEnhancedText(result.rewrittenText);
+      setStatusMessage("✅ Conteúdo melhorado com sucesso!");
+      
     } catch (error) {
-      console.error("Erro ao reescrever texto:", error);
-      setMessage("❌ Erro ao processar o conteúdo com IA.");
-      return text;
+      console.error("Erro ao melhorar conteúdo:", error);
+      setStatusMessage("❌ Erro ao processar com IA. Verifique sua chave OpenAI.");
+    } finally {
+      setIsProcessing(false);
     }
   };
 
-  const generateImages = async (texts: string[]) => {
+  const generateSlideImages = async (textBlocks: string[]) => {
     try {
-      const res = await fetch("/api/generate-image", {
+      const response = await fetch("/api/generate-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompts: texts })
+        body: JSON.stringify({ prompts: textBlocks })
       });
-      const data = await res.json();
-      return data.imageUrls;
-    } catch (err) {
-      console.error("Erro ao gerar imagens:", err);
-      return Array(texts.length).fill(null);
+      
+      if (!response.ok) return [];
+      
+      const result = await response.json();
+      return result.imageUrls || [];
+    } catch (error) {
+      console.error("Erro ao gerar imagens:", error);
+      return [];
     }
   };
 
-  const handleRewrite = async () => {
-    if (!originalText.trim()) {
-      setMessage("⚠️ O conteúdo está vazio.");
+  const exportPresentation = async () => {
+    if (!enhancedText.trim()) {
+      setStatusMessage("⚠️ Primeiro melhore o conteúdo com IA.");
       return;
     }
-    const improved = await rewriteContent(originalText);
-    setImprovedText(improved);
-    setMessage("✅ Conteúdo melhorado com sucesso!");
-  };
-
-  const handleExport = async () => {
-    if (!improvedText.trim()) {
-      setMessage("⚠️ O conteúdo está vazio.");
-      return;
+    
+    setIsProcessing(true);
+    setStatusMessage("📊 Gerando apresentação...");
+    
+    try {
+      const slideBlocks = enhancedText.split(/\n{2,}/).slice(0, numberOfSlides);
+      const slideTitles = slideBlocks.map((_, index) => `Slide ${index + 1}`);
+      
+      let slideImages: string[] = [];
+      if (chosenTemplate === "illustrated") {
+        setStatusMessage("🖼️ Gerando imagens...");
+        slideImages = await generateSlideImages(slideBlocks);
+      }
+      
+      await exportPPTX(slideBlocks, slideTitles, chosenTemplate, slideImages);
+      setStatusMessage("📥 Apresentação exportada com sucesso!");
+      
+    } catch (error) {
+      console.error("Erro ao exportar:", error);
+      setStatusMessage("❌ Erro ao gerar apresentação.");
+    } finally {
+      setIsProcessing(false);
     }
-    const blocks = improvedText.split(/\n{2,}/).slice(0, slideCount);
-    const titles = blocks.map((_, i) => `Slide ${i + 1}`);
-    const images = selectedTemplate === "illustrated" ? await generateImages(blocks) : [];
-    await exportPPTX(blocks, titles, selectedTemplate, images);
-    setMessage("📥 Apresentação exportada com sucesso!");
   };
 
   return (
@@ -140,22 +175,26 @@ export default function Page() {
       <div className="grid md:grid-cols-2 gap-8">
         <section className="space-y-6">
           <h1 className="text-4xl font-bold text-blue-700">🎯 Geração Inteligente de Apresentações</h1>
+          
           <Textarea
             placeholder="Cole seu conteúdo aqui..."
             rows={8}
-            value={originalText}
-            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setOriginalText(e.target.value)}
+            value={inputText}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setInputText(e.target.value)}
             className="rounded-xl shadow-sm border border-gray-300 focus:ring-2 focus:ring-blue-500"
+            disabled={isProcessing}
           />
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium">Tom de voz:</label>
               <select
                 className="w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-blue-400"
-                value={selectedTone}
-                onChange={(e) => setSelectedTone(e.target.value)}
+                value={chosenTone}
+                onChange={(e) => setChosenTone(e.target.value)}
+                disabled={isProcessing}
               >
-                {toneOptions.map(({ label }) => (
+                {voiceTones.map(({ label }) => (
                   <option key={label} value={label}>{label}</option>
                 ))}
               </select>
@@ -164,15 +203,17 @@ export default function Page() {
               <label className="text-sm font-medium">Formato:</label>
               <select
                 className="w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-blue-400"
-                value={selectedFormat}
-                onChange={(e) => setSelectedFormat(e.target.value)}
+                value={chosenFormat}
+                onChange={(e) => setChosenFormat(e.target.value)}
+                disabled={isProcessing}
               >
-                {formatOptions.map(({ label }) => (
+                {contentFormats.map(({ label }) => (
                   <option key={label} value={label}>{label}</option>
                 ))}
               </select>
             </div>
           </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium">Qtd de slides:</label>
@@ -180,42 +221,62 @@ export default function Page() {
                 type="number"
                 min={1}
                 max={20}
-                value={slideCount}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setSlideCount(Number(e.target.value))}
+                value={numberOfSlides}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setNumberOfSlides(Number(e.target.value))}
                 className="rounded-xl w-full"
+                disabled={isProcessing}
               />
             </div>
             <div>
               <label className="text-sm font-medium">Template visual:</label>
               <select
                 className="w-full rounded-xl border border-gray-300 px-3 py-2 shadow-sm focus:ring-2 focus:ring-blue-400"
-                value={selectedTemplate}
-                onChange={(e) => setSelectedTemplate(e.target.value)}
+                value={chosenTemplate}
+                onChange={(e) => setChosenTemplate(e.target.value)}
+                disabled={isProcessing}
               >
-                {templateOptions.map(({ value, label }) => (
+                {visualTemplates.map(({ value, label }) => (
                   <option key={value} value={value}>{label}</option>
                 ))}
               </select>
             </div>
           </div>
+          
           <div className="flex flex-wrap gap-4">
-            <Button onClick={checkSpelling} className="rounded-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 shadow-md">
+            <Button 
+              onClick={performSpellCheck} 
+              disabled={isProcessing}
+              className="rounded-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 shadow-md disabled:opacity-50"
+            >
               📝 Corrigir Ortografia
             </Button>
-            <Button onClick={handleRewrite} className="rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 shadow-md">
+            <Button 
+              onClick={enhanceContentWithAI} 
+              disabled={isProcessing}
+              className="rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 shadow-md disabled:opacity-50"
+            >
               ✨ Melhorar com IA
             </Button>
-            <Button onClick={handleExport} className="rounded-full bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 shadow-md">
+            <Button 
+              onClick={exportPresentation} 
+              disabled={isProcessing}
+              className="rounded-full bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 shadow-md disabled:opacity-50"
+            >
               📊 Exportar PPTX
             </Button>
           </div>
-          {message && <p className="text-blue-800 bg-blue-100 border border-blue-300 p-3 rounded-lg shadow-sm">{message}</p>}
           
-          {spellCheckResults && spellCheckResults.hasChanges && (
+          {statusMessage && (
+            <p className="text-blue-800 bg-blue-100 border border-blue-300 p-3 rounded-lg shadow-sm">
+              {statusMessage}
+            </p>
+          )}
+          
+          {spellingResults && spellingResults.hasChanges && (
             <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg">
               <h3 className="font-semibold text-purple-800 mb-2">📝 Correções realizadas:</h3>
               <div className="space-y-1">
-                {spellCheckResults.corrections.map((correction, index) => (
+                {spellingResults.corrections.map((correction, index) => (
                   <div key={index} className="text-sm">
                     <span className="text-red-600 line-through">{correction.original}</span>
                     <span className="mx-2">→</span>
@@ -230,11 +291,12 @@ export default function Page() {
         <section>
           <h2 className="text-xl font-semibold mb-2">Pré-visualização do conteúdo:</h2>
           <Textarea
-            ref={draftRef}
-            value={improvedText}
-            onChange={(e) => setImprovedText(e.target.value)}
+            ref={previewRef}
+            value={enhancedText}
+            onChange={(e) => setEnhancedText(e.target.value)}
             rows={18}
             className="rounded-xl bg-gray-50 border border-gray-200 shadow-inner w-full h-full"
+            placeholder="O conteúdo melhorado aparecerá aqui..."
           />
         </section>
       </div>
