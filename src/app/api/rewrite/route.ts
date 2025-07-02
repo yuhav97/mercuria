@@ -7,20 +7,21 @@ const openai = new OpenAI({
 
 export async function POST(req: Request) {
   try {
-    const { text, tone, format, slides, persona } = await req.json();
+    const { text, tone, format, slides } = await req.json();
 
     const prompt = `
-${persona}
+Você é um especialista em criação de apresentações profissionais.
 
 --- Instruções ---
 Você deve gerar uma apresentação com aproximadamente ${slides} slides no formato: ${format}.
 O conteúdo deve ser adaptado com o tom de voz: ${tone}.
+
 Texto original:
 """
 ${text}
 """
 
-Retorne apenas o conteúdo estruturado para os slides, sem explicações adicionais.
+Estruture o conteúdo em slides claros e objetivos. Retorne apenas o conteúdo estruturado para os slides, sem explicações adicionais.
 `;
 
     const response = await openai.chat.completions.create({
