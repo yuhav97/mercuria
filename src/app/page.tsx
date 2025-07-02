@@ -42,7 +42,38 @@ export default function Page() {
   const [selectedFormat, setSelectedFormat] = useState("Bullet points");
   const [selectedTemplate, setSelectedTemplate] = useState("classic");
   const [message, setMessage] = useState("");
+  const [spellCheckResults, setSpellCheckResults] = useState<{corrections: Array<{original: string, corrected: string}>, hasChanges: boolean} | null>(null);
   const draftRef = useRef<HTMLTextAreaElement>(null);
+
+  const checkSpelling = async () => {
+    if (!originalText.trim()) {
+      setMessage("⚠️ O conteúdo está vazio.");
+      return;
+    }
+    
+    try {
+      const res = await fetch("/api/spell-check", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: originalText })
+      });
+      
+      if (!res.ok) throw new Error("Erro na requisição");
+      const data = await res.json();
+      
+      if (data.hasChanges) {
+        setOriginalText(data.correctedText);
+        setSpellCheckResults(data);
+        setMessage(`✅ Ortografia corrigida! ${data.corrections.length} correções feitas.`);
+      } else {
+        setMessage("✅ Nenhum erro ortográfico encontrado!");
+        setSpellCheckResults(null);
+      }
+    } catch (error) {
+      console.error("Erro na correção ortográfica:", error);
+      setMessage("❌ Erro ao corrigir ortografia.");
+    }
+  };
 
   const rewriteContent = async (text: string): Promise<string> => {
     try {
@@ -168,6 +199,9 @@ export default function Page() {
             </div>
           </div>
           <div className="flex flex-wrap gap-4">
+            <Button onClick={checkSpelling} className="rounded-full bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 shadow-md">
+              📝 Corrigir Ortografia
+            </Button>
             <Button onClick={handleRewrite} className="rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 shadow-md">
               ✨ Melhorar com IA
             </Button>
@@ -176,6 +210,21 @@ export default function Page() {
             </Button>
           </div>
           {message && <p className="text-blue-800 bg-blue-100 border border-blue-300 p-3 rounded-lg shadow-sm">{message}</p>}
+          
+          {spellCheckResults && spellCheckResults.hasChanges && (
+            <div className="bg-purple-50 border border-purple-200 p-4 rounded-lg">
+              <h3 className="font-semibold text-purple-800 mb-2">📝 Correções realizadas:</h3>
+              <div className="space-y-1">
+                {spellCheckResults.corrections.map((correction, index) => (
+                  <div key={index} className="text-sm">
+                    <span className="text-red-600 line-through">{correction.original}</span>
+                    <span className="mx-2">→</span>
+                    <span className="text-green-600 font-medium">{correction.corrected}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </section>
 
         <section>

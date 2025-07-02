@@ -12,7 +12,12 @@ export async function exportPPTX(
     backgroundColor: string;
     title: PptxGenJS.TextPropsOptions;
     content: PptxGenJS.TextPropsOptions;
-    image?: PptxGenJS.ImagePropsOptions;
+    image?: {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+    };
   };
 
   const templates: Record<string, SlideTemplate> = {
